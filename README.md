@@ -1,1 +1,1 @@
-# Easy-State
+# Easy-States
