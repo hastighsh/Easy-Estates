@@ -1,9 +1,9 @@
 # Easy-Estates
 
-##Purpose
+## Purpose
 
-##How it works?
+## How it works?
 
 
-##Installation
-  ###Windows
+## Installation
+  ### Windows
