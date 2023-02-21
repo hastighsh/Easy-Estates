@@ -1,9 +1,9 @@
 package _project.logic;
 
 /**
- * LocationData
+ * TimeSeries
  */
-public class LocationData {
+public class TimeSeries {
     private Parameter time;
     private Parameter location;
 
