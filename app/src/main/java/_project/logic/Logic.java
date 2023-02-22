@@ -95,13 +95,14 @@ public class Logic implements LogicIF{
 	}
 	
 	
-	public StatsComparison compareTimeSeries(TimeSeries ts1, TimeSeries ts2) { // for use case 4
+	// public StatsComparison compareTimeSeries(TimeSeries ts1, TimeSeries ts2) { // for use case 4
 		
-		boolean exists = checkExistence(ts1, ts2);
+	// 	boolean exists = checkExistence(ts1, ts2);
 		
-		StatsComparison s = new StatsComparison(ts1, ts2);
-		return s;
-	}
+	// 	// StatsComparison s = new StatsComparison(ts1, ts2);
+	// 	// stats comparison is not a type...
+	// 	return s;
+	// }
 
 	private boolean checkExistence(TimeSeries ts1, TimeSeries ts2) {		//helper method for StatsComparison. Similar helper can be used for use case 5
 		
