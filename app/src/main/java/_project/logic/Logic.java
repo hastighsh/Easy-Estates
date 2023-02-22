@@ -41,9 +41,9 @@ public class Logic implements LogicIF{
 		
 	}
 	
-	public DataTable fetchData(){	// fetch data from DB     	for use case 1, and multiple other uses
+	public ArrayList<Float> fetchData(){	// fetch data from DB     	for use case 1, and multiple other uses
 		
-		DataTable data = new DataTable();
+		ArrayList<Float> data = new ArrayList<Float>();
 		
 		return data;
 	
