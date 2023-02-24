@@ -4,9 +4,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -41,121 +38,52 @@ import org.jfree.data.time.Year;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-public class MainUI extends JFrame {
+public class MainUIExample extends JFrame {
     /**
      *
      */
     private static final long serialVersionUID = 1L;
 
-    private static MainUI instance;
-    private static ArrayList locations = new ArrayList(10);
-    private static ArrayList times = new ArrayList(10);
+    private static MainUIExample instance;
 
-    public static MainUI getInstance() {
+    public static MainUIExample getInstance() {
         if (instance == null)
-            instance = new MainUI();
+            instance = new MainUIExample();
 
         return instance;
     }
 
-    private MainUI() {
+    private MainUIExample() {
         // Set window title
-        super("Easy Estates");
+        super("Country Statistics");
 
         // Set top bar
-        JLabel chooseCountryLabel = new JLabel("Choose a Location: "); // setting a text
-        Vector<String> countriesNames = new Vector<String>(); // setting a drop-down menu vector
-        countriesNames.add("Atlantic Region"); // adding instances to the menu
-        countriesNames.add("Quebec");
-        countriesNames.add("Ontario");
-        countriesNames.add("Prairie Region");
-        countriesNames.add("British Columbia");
-        countriesNames.add("Newfoundland and Labrador");
-        countriesNames.add("Prince Edward Island");
-        countriesNames.add("Nova Scotia");
-        countriesNames.add("New Brunswick");
-        countriesNames.add("St. John's, Newfoundland and Labrador");
-        countriesNames.add("Charlottetown, Prince Edward Island");
-        countriesNames.add("Halifax, Nova Scotia");
-        countriesNames.add("Saint John, Fredericton, and Moncton, New Brunswick");
-        countriesNames.add("Québec, Quebec");
-        countriesNames.add("Sherbrooke, Quebec");
-        countriesNames.add("Trois-Rivières, Quebec");
-        countriesNames.add("Montréal, Quebec");
-        countriesNames.add("Ottawa-Gatineau, Quebec part, Ontario/Quebec");
-        countriesNames.add("Ottawa-Gatineau, Ontario part, Ontario/Quebec");
-        countriesNames.add("Oshawa, Ontario");
-        countriesNames.add("Toronto, Ontario");
-        countriesNames.add("Hamilton, Ontario");
-        countriesNames.add("St. Catharines-Niagara, Ontario");
-        countriesNames.add("Kitchener-Cambridge-Waterloo, Ontario");
-        countriesNames.add("Guelph, Ontario");
-        countriesNames.add("London, Ontario");
-        countriesNames.add("Windsor, Ontario");
-        countriesNames.add("Greater Sudbury, Ontario");
-        countriesNames.add("Manitoba");
-        countriesNames.add("Saskatchewan");
-        countriesNames.add("Alberta");
-        countriesNames.add("Winnipeg, Manitoba");
-        countriesNames.add("Regina, Saskatchewan");
-        countriesNames.add("Saskatoon, Saskatchewan");
-        countriesNames.add("Calgary, Alberta");
-        countriesNames.add("Edmonton, Alberta");
-        countriesNames.add("Kelowna, British Columbia");
-        countriesNames.add("Vancouver, British Columbia");
-        countriesNames.add("Victoria, British Columbia");
+        JLabel chooseCountryLabel = new JLabel("Choose a country: ");
+        Vector<String> countriesNames = new Vector<String>();
+        countriesNames.add("USA");
         countriesNames.add("Canada");
-
+        countriesNames.add("France");
+        countriesNames.add("China");
+        countriesNames.add("Brazil");
         countriesNames.sort(null);
-        JComboBox<String> countriesList = new JComboBox<String>(countriesNames); // making the vector into a drop-down menu
-
-        countriesList.getSelectedItem();
-//        System.out.println( countriesList.getSelectedItem());
-//        MainUI m = new MainUI();
-//        countriesList.addActionListener(m);
-        JButton addLocation = new JButton("+"); // adding button
-
-        JLabel test = new JLabel("added: " );
-        JLabel test1 = new JLabel("" );
-
-
-        locations.add("");
-        addLocation.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                locations.add(countriesList.getSelectedItem());
-            }
-        });
-        System.out.println(locations);
-
-
-        JButton removeLocation = new JButton("-");
+        JComboBox<String> countriesList = new JComboBox<String>(countriesNames);
 
         JLabel from = new JLabel("From");
         JLabel to = new JLabel("To");
         Vector<String> years = new Vector<String>();
-        for (int i = 2022; i >= 1981; i--) {
-            for(int j = 12; j >= 1; j--) {
-                years.add("" + i + "-" + j);
-            }
+        for (int i = 2021; i >= 2010; i--) {
+            years.add("" + i);
         }
         JComboBox<String> fromList = new JComboBox<String>(years);
         JComboBox<String> toList = new JComboBox<String>(years);
 
-        JButton loadData = new JButton("Load Data");
-
-        JPanel north = new JPanel(); //making a panel (top)
-        north.add(test);
-        north.add(test1);
+        JPanel north = new JPanel();
         north.add(chooseCountryLabel);
         north.add(countriesList);
-        north.add(addLocation);
-        north.add(removeLocation);
         north.add(from);
         north.add(fromList);
         north.add(to);
         north.add(toList);
-        north.add(loadData);
 
         // Set bottom bar
         JButton recalculate = new JButton("Recalculate");
@@ -163,26 +91,24 @@ public class MainUI extends JFrame {
         JLabel viewsLabel = new JLabel("Available Views: ");
 
         Vector<String> viewsNames = new Vector<String>();
+        viewsNames.add("Pie Chart");
         viewsNames.add("Line Chart");
-//        viewsNames.add("Pie Chart");
-//        viewsNames.add("Bar Chart");
-//        viewsNames.add("Scatter Chart");
-//        viewsNames.add("Report");
+        viewsNames.add("Bar Chart");
+        viewsNames.add("Scatter Chart");
+        viewsNames.add("Report");
         JComboBox<String> viewsList = new JComboBox<String>(viewsNames);
         JButton addView = new JButton("+");
         JButton removeView = new JButton("-");
 
-        JLabel methodLabel = new JLabel("        Choose Forecasting method: ");
+        JLabel methodLabel = new JLabel("        Choose analysis method: ");
 
         Vector<String> methodsNames = new Vector<String>();
-        methodsNames.add("Method #1");
-//        methodsNames.add("Mortality vs Expenses");
-//        methodsNames.add("Mortality vs Expenses & Hospital Beds");
-//        methodsNames.add("Mortality vs GDP");
-//        methodsNames.add("Unemployment vs GDP");
-//        methodsNames.add("Unemployment");
-
-        JButton statsBtn = new JButton("Compare by T-test");
+        methodsNames.add("Mortality");
+        methodsNames.add("Mortality vs Expenses");
+        methodsNames.add("Mortality vs Expenses & Hospital Beds");
+        methodsNames.add("Mortality vs GDP");
+        methodsNames.add("Unemployment vs GDP");
+        methodsNames.add("Unemployment");
 
         JComboBox<String> methodsList = new JComboBox<String>(methodsNames);
 
@@ -195,7 +121,6 @@ public class MainUI extends JFrame {
         south.add(methodLabel);
         south.add(methodsList);
         south.add(recalculate);
-        south.add(statsBtn);
 
         JPanel east = new JPanel();
 
@@ -211,12 +136,12 @@ public class MainUI extends JFrame {
     }
 
     private void createCharts(JPanel west) {
-        createReport(west);
         createLine(west);
-//        createTimeSeries(west);
-//        createBar(west);
-//        createPie(west);
-//        createScatter(west);
+        createTimeSeries(west);
+        createBar(west);
+        createPie(west);
+        createScatter(west);
+        createReport(west);
 
     }
 
@@ -226,28 +151,19 @@ public class MainUI extends JFrame {
         report.setPreferredSize(new Dimension(400, 300));
         report.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         report.setBackground(Color.white);
-//        String reportMessage, reportMessage2;
+        String reportMessage, reportMessage2;
 
-        int parNum = 2;
+        reportMessage = "Mortality vs Expenses & Hospital Beds\n" + "==============================\n" + "Year 2018:\n"
+                + "\tMortality/1000 births => 5.6\n" + "\tHealth Expenditure per Capita => 10624\n"
+                + "\tHospital Beds/1000 people => 2.92\n" + "\n" + "Year 2017:\n" + "\tMortality/1000 births => 5.7\n"
+                + "\tHealth Expenditure per Capita => 10209\n" + "\tHospital Beds/1000 people => 2.87\n" + "\n"
+                + "Year 2016:\n" + "\tMortality/1000 births => 5.8\n" + "\tHealth Expenditure per Capita => 9877\n"
+                + "\tHospital Beds/1000 people => 2.77\n";
 
-        //raw data table
-        String reportMessage = "City NHPI Over Time Raw Data\n" + "==============================\n";
-        for (int i = 1; i <= parNum; i++) {
-            String dataInfo = "Toronto:\n" + "\tStart Date _ End Date: 1991-5 / 1995-6\n"
-                    + "\tNHPI: 0564846" + "\n";
-            reportMessage = reportMessage.concat(dataInfo);
-        }
+        reportMessage2 = "Unemployment: Mev vs Women\n" + "==========================\n" + "Men=>\n"
+                + "\tEmployed: 96.054%\n" + "\tUnemployed: 3.946%\n" + "\n" + "Women=>\n" + "\tEmployed: 96.163%\n"
+                + "\tUnemployed: 3.837%\n";
 
-        //stats table
-        String statsMessage = "Statistic Results of City NHPI Over Time\n" + "==========================\n";
-        for (int i = 1; i <= parNum; i++) {
-            String dataInfo = "Toronto:\n" + "\tStart Date _ End Date: 1991-5 / 1995-6\n"
-                    + "\tNHPI: 0564846" + "\n";
-            statsMessage = statsMessage.concat(dataInfo);
-        }
-
-
-        // =========== putting the radio buttons for switching between raw data and the stats
         report.setText(reportMessage);
         JScrollPane outputScrollPane = new JScrollPane(report);
         west.add(outputScrollPane);
@@ -313,19 +229,11 @@ public class MainUI extends JFrame {
         JFreeChart scatterChart = new JFreeChart("Mortality vs Expenses & Hospital Beds",
                 new Font("Serif", java.awt.Font.BOLD, 18), plot, true);
 
-
-//        Vector<JFreeChart> multiChart = new Vector<JFreeChart>();
-//        multiChart.add(scatterChart);
-//        multiChart.add(scatterChart);
-
-//        JScrollPane scroll = new JScrollPane(scatterChart);
         ChartPanel chartPanel = new ChartPanel(scatterChart);
-        chartPanel.setPreferredSize(new Dimension(350, 300));
-        JScrollPane scroll = new JScrollPane(chartPanel);
-        scroll.setPreferredSize(new Dimension(400, 300));
-        scroll.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        scroll.setBackground(Color.white);
-        west.add(scroll);
+        chartPanel.setPreferredSize(new Dimension(400, 300));
+        chartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        chartPanel.setBackground(Color.white);
+        west.add(chartPanel);
     }
 
     private void createPie(JPanel west) {
@@ -427,65 +335,45 @@ public class MainUI extends JFrame {
     }
 
     private void createLine(JPanel west) {
+        XYSeries series1 = new XYSeries("Mortality/1000 births");
+        series1.add(2018, 5.6);
+        series1.add(2017, 5.7);
+        series1.add(2016, 5.8);
+        series1.add(2015, 5.8);
+        series1.add(2014, 5.9);
+        series1.add(2013, 6.0);
+        series1.add(2012, 6.1);
+        series1.add(2011, 6.2);
+        series1.add(2010, 6.4);
 
-        XYSeries series1 = new XYSeries("");
-        if(locations.size() >= 2) {
-            for (int i = 1; i <= locations.size(); i++) {
-                series1.setKey(locations.get(i).toString());
-                series1.add(2018, 500);
-                series1.add(2017, 534);
-                series1.add(2016, 643);
-                series1.add(2015, 903);
-                series1.add(2014, 1000);
-                series1.add(2013, 934);
-                series1.add(2012, 834);
-                series1.add(2011, 924);
-                series1.add(2010, 1465);
-            }
-        }
-//        XYSeries series1 = new XYSeries("Toronto");
-//        series1.add(2018, 500);
-//        series1.add(2017, 534);
-//        series1.add(2016, 643);
-//        series1.add(2015, 903);
-//        series1.add(2014, 1000);
-//        series1.add(2013, 934);
-//        series1.add(2012, 834);
-//        series1.add(2011, 924);
-//        series1.add(2010, 1465);
+        XYSeries series2 = new XYSeries("Health Expenditure per Capita");
+        series2.add(2018, 10624);
+        series2.add(2017, 10209);
+        series2.add(2016, 9877);
+        series2.add(2015, 9491);
+        series2.add(2014, 9023);
+        series2.add(2013, 8599);
+        series2.add(2012, 8399);
+        series2.add(2011, 8130);
+        series2.add(2010, 7930);
 
-
-
-//        XYSeries series2 = new XYSeries("Montreal");
-//        series2.add(2018, 10624);
-//        series2.add(2017, 10209);
-//        series2.add(2016, 9877);
-//        series2.add(2015, 9491);
-//        series2.add(2014, 9023);
-//        series2.add(2013, 8599);
-//        series2.add(2012, 8399);
-//        series2.add(2011, 8130);
-//        series2.add(2010, 7930);
-
-
-
-//        XYSeries series3 = new XYSeries("Hospital Beds/1000 people");
-//        series3.add(2018, 2.92);
-//        series3.add(2017, 2.87);
-//        series3.add(2016, 2.77);
-//        series3.add(2015, 2.8);
-//        series3.add(2014, 2.83);
-//        series3.add(2013, 2.89);
-//        series3.add(2012, 2.93);
-//        series3.add(2011, 2.97);
-//        series3.add(2010, 3.05);
+        XYSeries series3 = new XYSeries("Hospital Beds/1000 people");
+        series3.add(2018, 2.92);
+        series3.add(2017, 2.87);
+        series3.add(2016, 2.77);
+        series3.add(2015, 2.8);
+        series3.add(2014, 2.83);
+        series3.add(2013, 2.89);
+        series3.add(2012, 2.93);
+        series3.add(2011, 2.97);
+        series3.add(2010, 3.05);
 
         XYSeriesCollection dataset = new XYSeriesCollection();
         dataset.addSeries(series1);
-//        dataset.addSeries(series2);
-//        dataset.addSeries(series3);
+        dataset.addSeries(series2);
+        dataset.addSeries(series3);
 
-        JFreeChart chart = ChartFactory.createXYLineChart("NHPI of Cities Over Time", "Year", "NHPI", dataset,
+        JFreeChart chart = ChartFactory.createXYLineChart("Mortality vs Expenses & Hospital Beds", "Year", "", dataset,
                 PlotOrientation.VERTICAL, true, true, false);
 
         XYPlot plot = chart.getXYPlot();
@@ -506,7 +394,7 @@ public class MainUI extends JFrame {
         chart.getLegend().setFrame(BlockBorder.NONE);
 
         chart.setTitle(
-                new TextTitle("NHPI of Cities Over Time", new Font("Serif", java.awt.Font.BOLD, 18)));
+                new TextTitle("Mortality vs Expenses & Hospital Beds", new Font("Serif", java.awt.Font.BOLD, 18)));
 
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new Dimension(400, 300));
@@ -584,11 +472,9 @@ public class MainUI extends JFrame {
 
     }
 
-    private void addParameter(){}
-
     public static void main(String[] args) {
 
-        JFrame frame = MainUI.getInstance();
+        JFrame frame = MainUIExample.getInstance();
         frame.setSize(900, 600);
         frame.pack();
         frame.setVisible(true);
