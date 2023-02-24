@@ -242,7 +242,6 @@ public class MainUI extends JFrame {
     private void createReport(JPanel west) {
         JTextArea report = new JTextArea();
         report.setEditable(false);
-        report.setPreferredSize(new Dimension(400, 300));
         report.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         report.setBackground(Color.white);
 //        String reportMessage, reportMessage2;
@@ -271,6 +270,7 @@ public class MainUI extends JFrame {
         // =========== putting the radio buttons for switching between raw data and the stats
         report.setText(reportMessage);
         outputScrollPane = new JScrollPane(report);
+        outputScrollPane.setPreferredSize(new Dimension(400, 300));
         west.add(outputScrollPane);
     }
 
