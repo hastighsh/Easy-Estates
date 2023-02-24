@@ -43,8 +43,8 @@ public class MainUI extends JFrame {
     private static final long serialVersionUID = 1L;
 
     private static MainUI instance;
-    private static ArrayList<String> locations = new ArrayList(10);
-    private static ArrayList<String> times = new ArrayList(10);
+    private static ArrayList<String> locations = new ArrayList();
+    private static ArrayList<String> times = new ArrayList();
     private static int counter = 0;
     JPanel west;
     JFreeChart chart;
@@ -117,11 +117,11 @@ public class MainUI extends JFrame {
         JLabel test1 = new JLabel("" );
 
 
-        locations.add("");
         addLocation.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(e.getSource() == addLocation){
+
                     locations.add((String)countriesList.getSelectedItem());
                     counter++;
                     west.remove(chartPanel);
@@ -434,10 +434,11 @@ public class MainUI extends JFrame {
 
     private void createLine(JPanel west) {
         ArrayList<XYSeries> arr = new ArrayList<>(10);
-
+        System.out.println(locations.size());
+        int i = 0;
+        int j = 100;
+        if(locations.size()>0){
             for(String location: locations){
-                int i = 0;
-                int j = 100;
                 arr.add(new XYSeries(locations.get(i)));
                 arr.get(i).add(2018, 500);
                 arr.get(i).add(2017, 534);
@@ -451,6 +452,8 @@ public class MainUI extends JFrame {
 //                j += 100 + i;
                 i ++;
             }
+        }
+
 //        XYSeries series1 = new XYSeries("Toronto");
 //        series1.add(2018, 500);
 //        series1.add(2017, 534);
@@ -489,15 +492,8 @@ public class MainUI extends JFrame {
 //        series3.add(2010, 3.05);
 
         XYSeriesCollection dataset = new XYSeriesCollection();
-        if(counter==0){
-            for(int i = 0;i<arr.size();i++){
-                dataset.addSeries(arr.get(i));
-            }
-        }
-        else if(counter==1){
-            for(int i = 0;i<arr.size();i++){
-                dataset.addSeries(arr.get(i));
-            }
+        for(int k = 0;k<counter;k++){
+            dataset.addSeries(arr.get(k));
         }
 //        dataset.addSeries(series3);
 
