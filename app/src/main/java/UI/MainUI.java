@@ -13,6 +13,8 @@ import java.util.Vector;
 
 import javax.swing.*;
 
+import LogicAndComparsion.Logic;
+import LogicAndComparsion.StatsComparison;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -49,6 +51,8 @@ public class MainUI extends JFrame {
     JPanel west;
     JFreeChart chart;
     ChartPanel chartPanel;
+    Logic log = new Logic();;
+
     public static MainUI getInstance() {
         if (instance == null)
             instance = new MainUI();
@@ -197,6 +201,11 @@ public class MainUI extends JFrame {
 //        methodsNames.add("Unemployment");
 
         JButton statsBtn = new JButton("Compare by T-test");
+        statsBtn.addActionListener(e->{
+            if(e.getSource()==statsBtn){
+
+            }
+        });
 
         JComboBox<String> methodsList = new JComboBox<String>(methodsNames);
 
@@ -613,6 +622,7 @@ public class MainUI extends JFrame {
         frame.setSize(900, 600);
         frame.pack();
         frame.setVisible(true);
+
     }
 
 }
