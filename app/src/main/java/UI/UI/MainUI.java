@@ -49,6 +49,7 @@ public class MainUI extends JFrame {
     JPanel west;
     JFreeChart chart;
     ChartPanel chartPanel;
+    JScrollPane outputScrollPane;
     public static MainUI getInstance() {
         if (instance == null)
             instance = new MainUI();
@@ -123,6 +124,8 @@ public class MainUI extends JFrame {
                 locations.add((String)countriesList.getSelectedItem());
                 counter++;
                 west.remove(chartPanel);
+                west.remove(outputScrollPane);
+                createReport(west);
                 createLine(west);
                 SwingUtilities.updateComponentTreeUI(west);
 
@@ -142,6 +145,8 @@ public class MainUI extends JFrame {
                 locations.remove((String)countriesList.getSelectedItem());
                 counter--;
                 west.remove(chartPanel);
+                west.remove(outputScrollPane);
+                createReport(west);
                 createLine(west);
                 SwingUtilities.updateComponentTreeUI(west);
             }
@@ -242,28 +247,30 @@ public class MainUI extends JFrame {
         report.setBackground(Color.white);
 //        String reportMessage, reportMessage2;
 
-        int parNum = 2;
-
         //raw data table
+        int i = 0;
         String reportMessage = "City NHPI Over Time Raw Data\n" + "==============================\n";
-        for (int i = 1; i <= parNum; i++) {
-            String dataInfo = "Toronto:\n" + "\tStart Date _ End Date: 1991-5 / 1995-6\n"
-                    + "\tNHPI: 0564846" + "\n";
-            reportMessage = reportMessage.concat(dataInfo);
+        if (locations.size() > 0) {
+            for (String location : locations) {
+                String dataInfo = locations.get(i) + "\n" + "\tStart Date _ End Date: 1991-5 / 1995-6\n"
+                        + "\tNHPI: 0564846" + "\n";
+                reportMessage = reportMessage.concat(dataInfo);
+                i++;
+            }
         }
 
         //stats table
-        String statsMessage = "Statistic Results of City NHPI Over Time\n" + "==========================\n";
-        for (int i = 1; i <= parNum; i++) {
-            String dataInfo = "Toronto:\n" + "\tStart Date _ End Date: 1991-5 / 1995-6\n"
-                    + "\tNHPI: 0564846" + "\n";
-            statsMessage = statsMessage.concat(dataInfo);
-        }
+//        String statsMessage = "Statistic Results of City NHPI Over Time\n" + "==========================\n";
+//        for (String location: locations) {
+//            String dataInfo = locations.get(i) + "\n" + "\tStart Date _ End Date: 1991-5 / 1995-6\n"
+//                    + "\tNHPI: 0564846" + "\n";
+//            statsMessage = statsMessage.concat(dataInfo);
+//        }
 
 
         // =========== putting the radio buttons for switching between raw data and the stats
         report.setText(reportMessage);
-        JScrollPane outputScrollPane = new JScrollPane(report);
+        outputScrollPane = new JScrollPane(report);
         west.add(outputScrollPane);
     }
 
