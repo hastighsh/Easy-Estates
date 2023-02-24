@@ -513,66 +513,7 @@ public class MainUI extends JFrame {
     }
 
     private void createLine(JPanel west) {
-//        ArrayList<XYSeries> arr = new ArrayList<>(10);
-//        int i = 0;
-//        if(locations.size()>0){
-//            for(String location: locations){
-//                arr.add(new XYSeries(locations.get(i)));
-//                arr.get(i).add(2018, 500);
-//                arr.get(i).add(2017, 534);
-//                arr.get(i).add(2016, 643);
-//                arr.get(i).add(2015, 903);
-//                arr.get(i).add(2014, i+100);
-//                arr.get(i).add(2013, 934);
-//                arr.get(i).add(2012, 834);
-//                arr.get(i).add(2011, 924);
-//                arr.get(i).add(2010, 1465);
-//                i ++;
-//            }
-//        }
-
-//        XYSeries series1 = new XYSeries("Toronto");
-//        series1.add(2018, 500);
-//        series1.add(2017, 534);
-//        series1.add(2016, 643);
-//        series1.add(2015, 903);
-//        series1.add(2014, 1000);
-//        series1.add(2013, 934);
-//        series1.add(2012, 834);
-//        series1.add(2011, 924);
-//        series1.add(2010, 1465);
-
-
-
-//        XYSeries series2 = new XYSeries("Montreal");
-//        series2.add(2018, 10624);
-//        series2.add(2017, 10209);
-//        series2.add(2016, 9877);
-//        series2.add(2015, 9491);
-//        series2.add(2014, 9023);
-//        series2.add(2013, 8599);
-//        series2.add(2012, 8399);
-//        series2.add(2011, 8130);
-//        series2.add(2010, 7930);
-
-
-
-//        XYSeries series3 = new XYSeries("Hospital Beds/1000 people");
-//        series3.add(2018, 2.92);
-//        series3.add(2017, 2.87);
-//        series3.add(2016, 2.77);
-//        series3.add(2015, 2.8);
-//        series3.add(2014, 2.83);
-//        series3.add(2013, 2.89);
-//        series3.add(2012, 2.93);
-//        series3.add(2011, 2.97);
-//        series3.add(2010, 3.05);
-
-//        XYSeriesCollection dataset = new XYSeriesCollection();
-//        for(int k = 0;k<counter;k++){
-//            dataset.addSeries(arr.get(k));
-//        }
-//        dataset.addSeries(series3);
+//
 
         chart = ChartFactory.createXYLineChart("NHPI of Cities Over Time", "Year", "NHPI",  dataset(),
                 PlotOrientation.VERTICAL, true, true, false);
@@ -679,6 +620,8 @@ public class MainUI extends JFrame {
         return result;
     }
     private XYSeriesCollection dataset(){
+        double year = 0;
+        double month = 0;
         XYSeriesCollection dataset = new XYSeriesCollection();
         String tempStart = startTime;
         String tempEnd = endTime;
@@ -687,40 +630,38 @@ public class MainUI extends JFrame {
             dataset.addSeries(xy);
             for(Node node : result){
                 if(location.equals(node.getLocation())){
-                    for(int i = 0 ;i<3;i++){
-                        xy.add(i,node.getData().get(i));
+                    year = Integer.parseInt(startTime.substring(0,4));
+                    month = Integer.parseInt((startTime.substring(startTime.length()-2)));
+                    for(int i = 0 ;i<node.getData().size();i+=3){
+                        double temp = increasement(year,month);
+                        temp = (temp*100.0)/100.0;
+                        month +=0.01;
+                        if(temp!=-1.0){
+                            xy.add(temp,node.getData().get(i));
+                        }
+                        else{
+                            break;
+                        }
                     }
                 }
             }
         }
         return dataset;
     }
-    private double increasement(String tempStart,String tempEnd){
-        int year = 0;
-        int month = 0;
-        year = Integer.parseInt(tempStart.substring(0,4));
-        month = Integer.parseInt((tempStart.substring(tempStart.length()-2)));
-        month++;
-
-        if(month<10){
-            tempStart = year + "-0" +month;
-        }
-        else if(month>12){
-            month = 1;
+    private double increasement(double year,double month){
+        double endYear = Integer.parseInt(endTime.substring(0,4));
+        double endMonth = (Integer.parseInt((endTime.substring(endTime.length()-2))))/100.0;
+        if(month>0.12){
             year++;
-            tempStart = year + "-0" + month;
+            month = 0.01;
         }
-        else{
-            tempStart = year + "-" +month;
-        }
-        double yearR = Integer.parseInt(tempStart.substring(0,4));
-        double monthR = (Integer.parseInt((tempStart.substring(tempStart.length()-2))))/100;
 
-        if(tempStart.equals(tempEnd)){
+
+        if((year+month)==(endYear+endMonth)){
             return -1.0;
         }
         else{
-            return yearR+monthR;
+            return year+month;
         }
     }
 
