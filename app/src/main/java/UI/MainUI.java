@@ -6,11 +6,15 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.*;
 
+import LogicAndComparsion.Location;
+import LogicAndComparsion.Logic;
+import LogicAndComparsion.Time;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -48,6 +52,7 @@ public class MainUI extends JFrame {
     JFreeChart chart;
     ChartPanel chartPanel;
     JScrollPane outputScrollPane;
+    Logic log = new Logic();
     public static MainUI getInstance() {
         if (instance == null)
             instance = new MainUI();
@@ -160,6 +165,24 @@ public class MainUI extends JFrame {
         JComboBox<String> toList = new JComboBox<String>(years);
 
         JButton loadData = new JButton("Load Data");
+        loadData.addActionListener (e->{
+            if(e.getSource()==loadData){
+                int i = 0;
+                for(String str: locations){
+                    Location location = new Location(locations.get(i));
+                    Time startTime = new Time(fromList.getSelectedItem().toString());
+                    Time endTime = new Time(toList.getSelectedItem().toString());
+                    i++;
+
+                    try {
+                        System.out.println("fetchData");
+                        System.out.println(log.fetchData(location,startTime,endTime));
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            }
+        });
 
         JPanel north = new JPanel(); //making a panel (top)
         north.add(test);
