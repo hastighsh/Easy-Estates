@@ -1,4 +1,4 @@
-package _project;
+package LogicAndComparsion;
 
 public class Time extends Parameter{
 

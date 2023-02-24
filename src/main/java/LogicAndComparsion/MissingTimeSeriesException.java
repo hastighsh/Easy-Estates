@@ -1,4 +1,4 @@
-package _project;
+package LogicAndComparsion;
 
 @SuppressWarnings("serial")
 public class MissingTimeSeriesException extends Exception {

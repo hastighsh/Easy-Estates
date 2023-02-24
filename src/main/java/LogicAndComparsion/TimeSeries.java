@@ -1,4 +1,4 @@
-package _project;
+package LogicAndComparsion;
 
 import java.util.*;
 
@@ -8,6 +8,8 @@ public class TimeSeries {
 	
 	private Time startTime;
 	private Time endTime;
+	private String tempStart;
+	private String tempEnd;
 	
 	public TimeSeries(ArrayList<Double> data) {
 		
@@ -20,6 +22,10 @@ public class TimeSeries {
 		this.startTime = new Time(startTime);
 		this.endTime = new Time(endTime);
 	
+	}
+	public TimeSeries(Time startTime,Time endTime){
+		tempStart = startTime.getName();
+		tempEnd = endTime.getName();
 	}
 
 	public ArrayList<Double> getNHPIndices() {
@@ -50,5 +56,28 @@ public class TimeSeries {
 		
 		return false;
 	}
+	public boolean increasement(){
+		int year = 0;
+		int month = 0;
+		year = Integer.parseInt(tempStart.substring(0,4));
+		month = Integer.parseInt((tempStart.substring(tempStart.length()-2)));
+		month++;
 
+		if(month<10){
+			tempStart = year + "-0" +month;
+		}
+		else if(month>12){
+			month = 1;
+			year++;
+			tempStart = year + "-0" + month;
+		}
+		else{
+			tempStart = year + "-" +month;
+		}
+		return tempStart.equals(tempEnd);
+
+	}
+	public String getTempStart(){
+		return tempStart;
+	}
 }

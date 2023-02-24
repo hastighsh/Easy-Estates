@@ -1,4 +1,4 @@
-package _project;
+package LogicAndComparsion;
 
 // @JAYANT IS WORKING ON THIS. WILL FINISH SOON
 

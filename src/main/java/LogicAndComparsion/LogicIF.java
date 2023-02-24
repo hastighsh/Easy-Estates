@@ -1,4 +1,4 @@
-package _project;
+package LogicAndComparsion;
 
 public interface LogicIF {
 

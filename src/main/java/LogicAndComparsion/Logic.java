@@ -1,6 +1,12 @@
-package _project;
+package LogicAndComparsion;
 
+import backend.DataBase;
+
+import java.sql.SQLException;
 import java.util.*;
+
+import backend.DataBase;
+import backend.MySql;
 import org.apache.commons.math3.stat.inference.TTest;
 
 public class Logic implements LogicIF{
@@ -13,68 +19,56 @@ public class Logic implements LogicIF{
 	int forecastMonths;
 	
 	//must have attributes by default:
-	DataBaseIF db;
+	DataBase dataBase;
 	static int visualizations_running;
 	
 	//to checkExistence of a timeSeries:
 	Set<TimeSeries> existingTS;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws SQLException {
+		Logic log = new Logic();
+		Location location = new Location("Toronto, Ontario");
 		
-		/* THE FOLLOWING COMMENTED MAIN METHOD SHOWS HOW StatsComparison(TimeSeries ts1, TimeSeries ts2) works, it's need of fetchData(location, Time, Time) etc.
+		// THE FOLLOWING COMMENTED MAIN METHOD SHOWS HOW StatsComparison(TimeSeries ts1, TimeSeries ts2) works, it's need of fetchData(location, Time, Time) etc.
 		
 		Time start1 = new Time ("1981-02");		// user gives this (comes as parameter from UI call, logic.AddTimeSeries(place, startTime, endTime);
 		Time end1 = new Time ("1998-02");
 		Time start2 = new Time ("1991-02");
 		Time end2 = new Time ("2008-11");
 		
-		ArrayList<Double> data1 = new ArrayList<Double>();		//  fetchData(place, startTime, endTime) returns data1, data2
+		ArrayList<Double> data1 = log.fetchData(location,start1,end1);//  fetchData(place, startTime, endTime) returns data1, data2
+		System.out.println(data1);
+		ArrayList<Double> data2 =log.fetchData(location,start2,end2);
+		System.out.println(data2);
 		
-		data1.add(1.0);
-		data1.add(3.4);
-		
-		ArrayList<Double> data2 = new ArrayList<Double>();
-		
-		data2.add(1.1);
-		data2.add(3.99);
-		data2.add(-111.2);
-		data2.add(387.99);
-		data2.add(-93.99);
-		data2.add(13.299);
-		data2.add(33.99555);
-		data2.add(3.989);
-		data2.add(3.999);
-		data2.add(30.99);
-		data2.add(-3.99);
+
 		
 		TimeSeries tseries1 = new TimeSeries(data1, start1, end1);
 		TimeSeries tseries2 = new TimeSeries(data2, start2, end2);
 		
-		Logic log = new Logic();
-		
-		*/
+
 		
 		/* this is where the t-test comparison happens, in the method compareTimeSeries(ts1, ts2);
 		 * the returned value is stored in an instance of StatsComparison for the UI to get values out from. The UI
 		 * uses getters to get the result of the comparison (the only thing UI needs is StatsComparison.getPValue() and StatsComparison.getConclusion();
 		 */
 		
-		/*
-		 * StatsComparison sc = log.compareTimeSeries(tseries1, tseries2);	
-		 * System.out.println(sc.getPValue());
-		 * System.out.println(sc.getConclusion());	
-		*/
+
+		 StatsComparison sc = log.compareTimeSeries(tseries1, tseries2);
+		 System.out.println(sc.getPValue());
+		 System.out.println(sc.getConclusion());
+
 		
 
 	}
 	
 	public Logic() {
-		
+
 		existingTS = new HashSet<TimeSeries>();
 		visualizations_running = 0;
 	}
 	
-	public void AddTimeSeries(Location place, Time startTime, Time endTime){	// use case 1
+	public void AddTimeSeries(Location place, Time startTime, Time endTime) throws SQLException {	// use case 1
 		
 		ArrayList<Double> data = new ArrayList<Double>(fetchData(place, startTime, endTime));	// fetch data and get it in the form of an arrayList for that location, and time period
 		
@@ -84,7 +78,7 @@ public class Logic implements LogicIF{
 		
 	}
 	
-	public void DeleteTimeSeries(Location place, Time startTime, Time endTime){	// use case 1
+	public void DeleteTimeSeries(Location place, Time startTime, Time endTime) throws SQLException {	// use case 1
 		
 		ArrayList<Double> data = new ArrayList<Double>(fetchData(place, startTime, endTime));	// fetch data and get it in the form of an arrayList for that location, and time period
 		
@@ -99,9 +93,11 @@ public class Logic implements LogicIF{
 		
 	}
 	
-	public ArrayList<Double> fetchData(Location place, Time start, Time end){	// fetch data from DB     	for use case 1, and multiple other uses
-		
-		ArrayList<Double> data = new ArrayList<Double>();
+	public ArrayList<Double> fetchData(Location place, Time start, Time end) throws SQLException {	// fetch data from DB     	for use case 1, and multiple other uses
+		TimeSeries timeSeries = new TimeSeries(start,end);
+		dataBase = new MySql(place,timeSeries);
+
+		ArrayList<Double> data =dataBase.getIndex();
 		
 		return data;
 	
