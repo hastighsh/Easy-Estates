@@ -63,6 +63,7 @@ public class MainUI extends JFrame {
     private MainUI() {
         // Set window title
         super("Easy Estates");
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         // Set top bar
         JLabel chooseCountryLabel = new JLabel("Choose a Location: "); // setting a text
