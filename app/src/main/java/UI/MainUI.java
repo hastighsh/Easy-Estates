@@ -1,4 +1,4 @@
-
+package UI;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -109,7 +109,7 @@ public class MainUI extends JFrame {
 
         countriesList.getSelectedItem();
 //        System.out.println( countriesList.getSelectedItem());
-//        MainUI m = new MainUI();
+//        UI.MainUI m = new UI.MainUI();
 //        countriesList.addActionListener(m);
         JButton addLocation = new JButton("+"); // adding button
 
