@@ -635,6 +635,7 @@ public class MainUI extends JFrame {
     }
 
     private void addParameter(){}
+    private
 
     public static void main(String[] args) {
 

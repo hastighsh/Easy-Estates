@@ -48,10 +48,6 @@ public class MySql implements DataBase {
 
         while (rs.next()){
             arr2.add(rs.getDouble("VALUE"));
-            String str0 = rs.getString("REF_DATE");
-            String str1 = rs.getString("GEO");
-            double value = rs.getFloat("VALUE");
-            System.out.printf("%s %s %f\n",str0,str1,value);
         }
     }
 
