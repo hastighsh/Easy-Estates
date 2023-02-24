@@ -82,6 +82,7 @@ public class MainUI extends JFrame {
     Logic log = new Logic();
     String startTime= "";
     String endTime = "";
+    double resultForIncrse;
 
     public static MainUI getInstance() {
         if (instance == null)
@@ -512,7 +513,7 @@ public class MainUI extends JFrame {
     }
 
     private void createLine(JPanel west) {
-        ArrayList<XYSeries> arr = new ArrayList<>(10);
+//        ArrayList<XYSeries> arr = new ArrayList<>(10);
 //        int i = 0;
 //        if(locations.size()>0){
 //            for(String location: locations){
@@ -679,47 +680,47 @@ public class MainUI extends JFrame {
     }
     private XYSeriesCollection dataset(){
         XYSeriesCollection dataset = new XYSeriesCollection();
+        String tempStart = startTime;
+        String tempEnd = endTime;
         for(String location: locations){
             XYSeries xy = new XYSeries(location);
             dataset.addSeries(xy);
             for(Node node : result){
                 if(location.equals(node.getLocation())){
-                    for(int i = 0 ;i<3;i+=3){
-                        double temp = increasement();
-                        if (!(temp ==-1.0)){
-                            xy.add(increasement(),node.getData().get(i));
-                        }
-                        else{
-                            break;
-                        }
+                    for(int i = 0 ;i<3;i++){
+                        xy.add(i,node.getData().get(i));
                     }
                 }
             }
         }
         return dataset;
     }
-    private double increasement(){
-        String tempStart = startTime;
-        String tempEnd= endTime;
+    private double increasement(String tempStart,String tempEnd){
         int year = 0;
-        double month = 0.01;
-        double result = 0.0;
+        int month = 0;
         year = Integer.parseInt(tempStart.substring(0,4));
         month = Integer.parseInt((tempStart.substring(tempStart.length()-2)));
         month++;
-        if(month>0.12){
-            month = 0.01;
+
+        if(month<10){
+            tempStart = year + "-0" +month;
+        }
+        else if(month>12){
+            month = 1;
             year++;
-            result = year+month;
+            tempStart = year + "-0" + month;
         }
         else{
-            result = year+month;
+            tempStart = year + "-" +month;
         }
+        double yearR = Integer.parseInt(tempStart.substring(0,4));
+        double monthR = (Integer.parseInt((tempStart.substring(tempStart.length()-2))))/100;
+
         if(tempStart.equals(tempEnd)){
             return -1.0;
         }
         else{
-            return result;
+            return yearR+monthR;
         }
     }
 
