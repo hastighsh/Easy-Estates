@@ -8,6 +8,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Vector;
 
 import javax.swing.*;
@@ -35,10 +36,34 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.time.Year;
+import org.jfree.data.xy.XYDataItem;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 public class MainUI extends JFrame {
+    private class Node{
+        private String location;
+        ArrayList<Double> data;
+        protected Node(String location,ArrayList<Double> data){
+            this.location =location;
+            this.data = data;
+        }
+        private ArrayList<Double> getData(){
+            return data;
+        }
+        private void setData(ArrayList<Double> data){
+            this.data = data;
+        }
+
+        private String getLocation() {
+            return location;
+        }
+
+        private void setLocation(String location) {
+            this.location = location;
+        }
+    }
     /**
      *
      */
@@ -47,12 +72,17 @@ public class MainUI extends JFrame {
     private static MainUI instance;
     private static ArrayList<String> locations = new ArrayList();
     private static ArrayList<String> times = new ArrayList();
+    private  ArrayList<Node> result = new ArrayList<>();
     private static int counter = 0;
+    JComboBox<String> fromList, toList;
     JPanel west;
     JFreeChart chart;
     ChartPanel chartPanel;
     JScrollPane outputScrollPane;
     Logic log = new Logic();
+    String startTime= "";
+    String endTime = "";
+
     public static MainUI getInstance() {
         if (instance == null)
             instance = new MainUI();
@@ -124,14 +154,15 @@ public class MainUI extends JFrame {
 
         addLocation.addActionListener(e -> {
             if(e.getSource() == addLocation){
-
-                locations.add((String)countriesList.getSelectedItem());
-                counter++;
-                west.remove(chartPanel);
-                west.remove(outputScrollPane);
-                createReport(west);
-                createLine(west);
-                SwingUtilities.updateComponentTreeUI(west);
+                if(!locations.contains((String)countriesList.getSelectedItem())){
+                    locations.add((String)countriesList.getSelectedItem());
+                    counter++;
+                    west.remove(chartPanel);
+                    west.remove(outputScrollPane);
+                    createReport(west);
+                    createLine(west);
+                    SwingUtilities.updateComponentTreeUI(west);
+                }
 
             }
 
@@ -146,13 +177,15 @@ public class MainUI extends JFrame {
 
         removeLocation.addActionListener(e->{
             if(e.getSource()==removeLocation){
-                locations.remove((String)countriesList.getSelectedItem());
-                counter--;
-                west.remove(chartPanel);
-                west.remove(outputScrollPane);
-                createReport(west);
-                createLine(west);
-                SwingUtilities.updateComponentTreeUI(west);
+                if(locations.contains((String)countriesList.getSelectedItem())){
+                    locations.remove((String)countriesList.getSelectedItem());
+                    counter--;
+                    west.remove(chartPanel);
+                    west.remove(outputScrollPane);
+                    createReport(west);
+                    createLine(west);
+                    SwingUtilities.updateComponentTreeUI(west);
+                }
             }
         });
 
@@ -162,24 +195,33 @@ public class MainUI extends JFrame {
                 years.add("" + i + "-" + j);
             }
         }
-        JComboBox<String> fromList = new JComboBox<String>(years);
-        JComboBox<String> toList = new JComboBox<String>(years);
+        fromList = new JComboBox<String>(years);
+        toList = new JComboBox<String>(years);
 
         JButton loadData = new JButton("Load Data");
         loadData.addActionListener (e->{
             if(e.getSource()==loadData){
-                int i = 0;
-                for(String str: locations){
-                    Location location = new Location(locations.get(i));
-                    Time startTime = new Time(fromList.getSelectedItem().toString());
-                    Time endTime = new Time(toList.getSelectedItem().toString());
-                    i++;
+                startTime = fromList.getSelectedItem().toString();
+                endTime = toList.getSelectedItem().toString();
+                if(!startTime.equals(endTime)) {
+                    int i = 0;
+                    for (String str : locations) {
+                        Location location = new Location(locations.get(i));
+                        Time startTime = new Time(fromList.getSelectedItem().toString());
+                        Time endTime = new Time(toList.getSelectedItem().toString());
+                        i++;
 
-                    try {
-                        System.out.println("fetchData");
-                        System.out.println(log.fetchData(location,startTime,endTime));
-                    } catch (SQLException ex) {
-                        throw new RuntimeException(ex);
+                        try {
+                            System.out.println("fetchData");
+                            ArrayList<Double> get = log.fetchData(location, startTime, endTime);
+                            Node node = new Node(location.getName(),get);
+                            System.out.println(get);
+                            result.add(node);
+                            west.remove(chartPanel);
+                            createLine(west);
+                        } catch (SQLException ex) {
+                            throw new RuntimeException(ex);
+                        }
                     }
                 }
             }
@@ -471,25 +513,22 @@ public class MainUI extends JFrame {
 
     private void createLine(JPanel west) {
         ArrayList<XYSeries> arr = new ArrayList<>(10);
-        System.out.println(locations.size());
-        int i = 0;
-        int j = 100;
-        if(locations.size()>0){
-            for(String location: locations){
-                arr.add(new XYSeries(locations.get(i)));
-                arr.get(i).add(2018, 500);
-                arr.get(i).add(2017, 534);
-                arr.get(i).add(2016, 643);
-                arr.get(i).add(2015, 903);
-                arr.get(i).add(2014, i+100);
-                arr.get(i).add(2013, 934);
-                arr.get(i).add(2012, 834);
-                arr.get(i).add(2011, 924);
-                arr.get(i).add(2010, 1465);
-//                j += 100 + i;
-                i ++;
-            }
-        }
+//        int i = 0;
+//        if(locations.size()>0){
+//            for(String location: locations){
+//                arr.add(new XYSeries(locations.get(i)));
+//                arr.get(i).add(2018, 500);
+//                arr.get(i).add(2017, 534);
+//                arr.get(i).add(2016, 643);
+//                arr.get(i).add(2015, 903);
+//                arr.get(i).add(2014, i+100);
+//                arr.get(i).add(2013, 934);
+//                arr.get(i).add(2012, 834);
+//                arr.get(i).add(2011, 924);
+//                arr.get(i).add(2010, 1465);
+//                i ++;
+//            }
+//        }
 
 //        XYSeries series1 = new XYSeries("Toronto");
 //        series1.add(2018, 500);
@@ -528,13 +567,13 @@ public class MainUI extends JFrame {
 //        series3.add(2011, 2.97);
 //        series3.add(2010, 3.05);
 
-        XYSeriesCollection dataset = new XYSeriesCollection();
-        for(int k = 0;k<counter;k++){
-            dataset.addSeries(arr.get(k));
-        }
+//        XYSeriesCollection dataset = new XYSeriesCollection();
+//        for(int k = 0;k<counter;k++){
+//            dataset.addSeries(arr.get(k));
+//        }
 //        dataset.addSeries(series3);
 
-        chart = ChartFactory.createXYLineChart("NHPI of Cities Over Time", "Year", "NHPI", dataset,
+        chart = ChartFactory.createXYLineChart("NHPI of Cities Over Time", "Year", "NHPI",  dataset(),
                 PlotOrientation.VERTICAL, true, true, false);
 
         XYPlot plot = chart.getXYPlot();
@@ -635,7 +674,54 @@ public class MainUI extends JFrame {
     }
 
     private void addParameter(){}
-    private
+    private ArrayList<Node> getInfo(){
+        return result;
+    }
+    private XYSeriesCollection dataset(){
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        for(String location: locations){
+            XYSeries xy = new XYSeries(location);
+            dataset.addSeries(xy);
+            for(Node node : result){
+                if(location.equals(node.getLocation())){
+                    for(int i = 0 ;i<3;i+=3){
+                        double temp = increasement();
+                        if (!(temp ==-1.0)){
+                            xy.add(increasement(),node.getData().get(i));
+                        }
+                        else{
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return dataset;
+    }
+    private double increasement(){
+        String tempStart = startTime;
+        String tempEnd= endTime;
+        int year = 0;
+        double month = 0.01;
+        double result = 0.0;
+        year = Integer.parseInt(tempStart.substring(0,4));
+        month = Integer.parseInt((tempStart.substring(tempStart.length()-2)));
+        month++;
+        if(month>0.12){
+            month = 0.01;
+            year++;
+            result = year+month;
+        }
+        else{
+            result = year+month;
+        }
+        if(tempStart.equals(tempEnd)){
+            return -1.0;
+        }
+        else{
+            return result;
+        }
+    }
 
     public static void main(String[] args) {
 
