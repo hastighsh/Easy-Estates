@@ -1,3 +1,5 @@
+
+
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -9,14 +11,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.*;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -48,9 +43,12 @@ public class MainUI extends JFrame {
     private static final long serialVersionUID = 1L;
 
     private static MainUI instance;
-    private static ArrayList locations = new ArrayList(10);
-    private static ArrayList times = new ArrayList(10);
-
+    private static ArrayList<String> locations = new ArrayList(10);
+    private static ArrayList<String> times = new ArrayList(10);
+    private static int counter = 0;
+    JPanel west;
+    JFreeChart chart;
+    ChartPanel chartPanel;
     public static MainUI getInstance() {
         if (instance == null)
             instance = new MainUI();
@@ -123,7 +121,15 @@ public class MainUI extends JFrame {
         addLocation.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                locations.add(countriesList.getSelectedItem());
+                if(e.getSource() == addLocation){
+                    locations.add((String)countriesList.getSelectedItem());
+                    counter++;
+                    west.remove(chartPanel);
+                    createLine(west);
+                    SwingUtilities.updateComponentTreeUI(west);
+
+                }
+
             }
         });
         System.out.println(locations);
@@ -200,7 +206,7 @@ public class MainUI extends JFrame {
         JPanel east = new JPanel();
 
         // Set charts region
-        JPanel west = new JPanel();
+        west = new JPanel();
         west.setLayout(new GridLayout(2, 0));
         createCharts(west);
 
@@ -427,22 +433,24 @@ public class MainUI extends JFrame {
     }
 
     private void createLine(JPanel west) {
+        ArrayList<XYSeries> arr = new ArrayList<>(10);
 
-        XYSeries series1 = new XYSeries("");
-        if(locations.size() >= 2) {
-            for (int i = 1; i <= locations.size(); i++) {
-                series1.setKey(locations.get(i).toString());
-                series1.add(2018, 500);
-                series1.add(2017, 534);
-                series1.add(2016, 643);
-                series1.add(2015, 903);
-                series1.add(2014, 1000);
-                series1.add(2013, 934);
-                series1.add(2012, 834);
-                series1.add(2011, 924);
-                series1.add(2010, 1465);
+            for(String location: locations){
+                int i = 0;
+                int j = 100;
+                arr.add(new XYSeries(locations.get(i)));
+                arr.get(i).add(2018, 500);
+                arr.get(i).add(2017, 534);
+                arr.get(i).add(2016, 643);
+                arr.get(i).add(2015, 903);
+                arr.get(i).add(2014, i+100);
+                arr.get(i).add(2013, 934);
+                arr.get(i).add(2012, 834);
+                arr.get(i).add(2011, 924);
+                arr.get(i).add(2010, 1465);
+//                j += 100 + i;
+                i ++;
             }
-        }
 //        XYSeries series1 = new XYSeries("Toronto");
 //        series1.add(2018, 500);
 //        series1.add(2017, 534);
@@ -481,11 +489,19 @@ public class MainUI extends JFrame {
 //        series3.add(2010, 3.05);
 
         XYSeriesCollection dataset = new XYSeriesCollection();
-        dataset.addSeries(series1);
-//        dataset.addSeries(series2);
+        if(counter==0){
+            for(int i = 0;i<arr.size();i++){
+                dataset.addSeries(arr.get(i));
+            }
+        }
+        else if(counter==1){
+            for(int i = 0;i<arr.size();i++){
+                dataset.addSeries(arr.get(i));
+            }
+        }
 //        dataset.addSeries(series3);
 
-        JFreeChart chart = ChartFactory.createXYLineChart("NHPI of Cities Over Time", "Year", "NHPI", dataset,
+        chart = ChartFactory.createXYLineChart("NHPI of Cities Over Time", "Year", "NHPI", dataset,
                 PlotOrientation.VERTICAL, true, true, false);
 
         XYPlot plot = chart.getXYPlot();
@@ -508,13 +524,14 @@ public class MainUI extends JFrame {
         chart.setTitle(
                 new TextTitle("NHPI of Cities Over Time", new Font("Serif", java.awt.Font.BOLD, 18)));
 
-        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new Dimension(400, 300));
         chartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         chartPanel.setBackground(Color.white);
         west.add(chartPanel);
 
     }
+
 
     private void createTimeSeries(JPanel west) {
         TimeSeries series1 = new TimeSeries("Mortality/1000 births");
