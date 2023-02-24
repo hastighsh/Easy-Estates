@@ -117,20 +117,17 @@ public class MainUI extends JFrame {
         JLabel test1 = new JLabel("" );
 
 
-        addLocation.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(e.getSource() == addLocation){
+        addLocation.addActionListener(e -> {
+            if(e.getSource() == addLocation){
 
-                    locations.add((String)countriesList.getSelectedItem());
-                    counter++;
-                    west.remove(chartPanel);
-                    createLine(west);
-                    SwingUtilities.updateComponentTreeUI(west);
-
-                }
+                locations.add((String)countriesList.getSelectedItem());
+                counter++;
+                west.remove(chartPanel);
+                createLine(west);
+                SwingUtilities.updateComponentTreeUI(west);
 
             }
+
         });
         System.out.println(locations);
 
@@ -139,6 +136,17 @@ public class MainUI extends JFrame {
 
         JLabel from = new JLabel("From");
         JLabel to = new JLabel("To");
+
+        removeLocation.addActionListener(e->{
+            if(e.getSource()==removeLocation){
+                locations.remove((String)countriesList.getSelectedItem());
+                counter--;
+                west.remove(chartPanel);
+                createLine(west);
+                SwingUtilities.updateComponentTreeUI(west);
+            }
+        });
+
         Vector<String> years = new Vector<String>();
         for (int i = 2022; i >= 1981; i--) {
             for(int j = 12; j >= 1; j--) {
