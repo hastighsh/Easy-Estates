@@ -27,14 +27,14 @@ public class Logic implements LogicIF{
 
 	public static void main(String[] args) throws SQLException {
 		Logic log = new Logic();
-		Location location = new Location("Toronto, Ontario");
+		Location location = new Location("Hamilton, Ontario");
 		
 		// THE FOLLOWING COMMENTED MAIN METHOD SHOWS HOW StatsComparison(TimeSeries ts1, TimeSeries ts2) works, it's need of fetchData(location, Time, Time) etc.
 		
 		Time start1 = new Time ("1981-02");		// user gives this (comes as parameter from UI call, logic.AddTimeSeries(place, startTime, endTime);
 		Time end1 = new Time ("1998-02");
 		Time start2 = new Time ("1991-02");
-		Time end2 = new Time ("2008-11");
+		Time end2 = new Time ("1999-11");
 		
 		ArrayList<Double> data1 = log.fetchData(location,start1,end1);//  fetchData(place, startTime, endTime) returns data1, data2
 		System.out.println(data1);
