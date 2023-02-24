@@ -49,6 +49,8 @@ public class MainUI extends JFrame {
     JPanel west;
     JFreeChart chart;
     ChartPanel chartPanel;
+    JScrollPane outputScrollPane;
+
     public static MainUI getInstance() {
         if (instance == null)
             instance = new MainUI();
@@ -123,6 +125,8 @@ public class MainUI extends JFrame {
                 locations.add((String)countriesList.getSelectedItem());
                 counter++;
                 west.remove(chartPanel);
+                west.remove(outputScrollPane);
+                createReport(west);
                 createLine(west);
                 SwingUtilities.updateComponentTreeUI(west);
 
@@ -157,6 +161,8 @@ public class MainUI extends JFrame {
         JComboBox<String> toList = new JComboBox<String>(years);
 
         JButton loadData = new JButton("Load Data");
+
+
 
         JPanel north = new JPanel(); //making a panel (top)
         north.add(test);
@@ -242,30 +248,38 @@ public class MainUI extends JFrame {
         report.setBackground(Color.white);
 //        String reportMessage, reportMessage2;
 
-        int parNum = 2;
+//        int parNum = 2;
 
         //raw data table
+        int i = 0;
+        String data = "";
         String reportMessage = "City NHPI Over Time Raw Data\n" + "==============================\n";
-        for (int i = 1; i <= parNum; i++) {
-            String dataInfo = "Toronto:\n" + "\tStart Date _ End Date: 1991-5 / 1995-6\n"
-                    + "\tNHPI: 0564846" + "\n";
-            reportMessage = reportMessage.concat(dataInfo);
+        if (locations.size() > 0) {
+
+            for (String location : locations) {
+                String dataInfo = locations.get(i) + "\n" + "\tStart Date _ End Date: 1991-5 / 1995-6\n"
+                        + "\tNHPI: 0564846" + "\n";
+                reportMessage = reportMessage.concat(dataInfo);
+                i++;
+            }
         }
 
         //stats table
-        String statsMessage = "Statistic Results of City NHPI Over Time\n" + "==========================\n";
-        for (int i = 1; i <= parNum; i++) {
-            String dataInfo = "Toronto:\n" + "\tStart Date _ End Date: 1991-5 / 1995-6\n"
-                    + "\tNHPI: 0564846" + "\n";
-            statsMessage = statsMessage.concat(dataInfo);
-        }
+//        String statsMessage = "Statistic Results of City NHPI Over Time\n" + "==========================\n";
+//        for (String location: locations) {
+//            String dataInfo = location + "\n" + "\tStart Date _ End Date: 1991-5 / 1995-6\n"
+//                    + "\tNHPI: 0564846" + "\n";
+//            statsMessage = statsMessage.concat(dataInfo);
+//        }
 
 
         // =========== putting the radio buttons for switching between raw data and the stats
         report.setText(reportMessage);
-        JScrollPane outputScrollPane = new JScrollPane(report);
+        outputScrollPane = new JScrollPane(report);
         west.add(outputScrollPane);
     }
+
+
 
     private void createScatter(JPanel west) {
         TimeSeries series1 = new TimeSeries("Mortality/1000 births");
@@ -442,9 +456,8 @@ public class MainUI extends JFrame {
 
     private void createLine(JPanel west) {
         ArrayList<XYSeries> arr = new ArrayList<>(10);
-        System.out.println(locations.size());
+//        System.out.println(locations.size());
         int i = 0;
-        int j = 100;
         if(locations.size()>0){
             for(String location: locations){
                 arr.add(new XYSeries(locations.get(i)));
@@ -452,12 +465,11 @@ public class MainUI extends JFrame {
                 arr.get(i).add(2017, 534);
                 arr.get(i).add(2016, 643);
                 arr.get(i).add(2015, 903);
-                arr.get(i).add(2014, i+100);
+                arr.get(i).add(2014, i*100+300);
                 arr.get(i).add(2013, 934);
                 arr.get(i).add(2012, 834);
                 arr.get(i).add(2011, 924);
                 arr.get(i).add(2010, 1465);
-//                j += 100 + i;
                 i ++;
             }
         }
