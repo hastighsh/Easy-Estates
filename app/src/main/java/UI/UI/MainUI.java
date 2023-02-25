@@ -1,4 +1,4 @@
-package UI;
+package UI.UI;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -8,13 +8,13 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Vector;
 
 import javax.swing.*;
 
 import LogicAndComparsion.Location;
 import LogicAndComparsion.Logic;
+import LogicAndComparsion.StatsComparison;
 import LogicAndComparsion.Time;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -36,13 +36,11 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.time.Year;
-import org.jfree.data.xy.XYDataItem;
-import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 public class MainUI extends JFrame {
-    private class Node{
+    private class Node implements Comparable {
         private String location;
         ArrayList<Double> data;
         protected Node(String location,ArrayList<Double> data){
@@ -63,6 +61,18 @@ public class MainUI extends JFrame {
         private void setLocation(String location) {
             this.location = location;
         }
+
+        @Override
+        public int compareTo(Object o) {
+            Node node = (Node) o;
+            if(this.getLocation().equals(node.getLocation())){
+                return 0;
+            }
+            else{
+                return 1;
+            }
+        }
+
     }
     /**
      *
@@ -158,7 +168,6 @@ public class MainUI extends JFrame {
             if(e.getSource() == addLocation){
                 if(!locations.contains((String)countriesList.getSelectedItem())){
                     locations.add((String)countriesList.getSelectedItem());
-
                     counter++;
                     west.remove(chartPanel);
                     west.remove(outputScrollPane);
@@ -181,6 +190,14 @@ public class MainUI extends JFrame {
         removeLocation.addActionListener(e->{
             if(e.getSource()==removeLocation){
                 if(locations.contains((String)countriesList.getSelectedItem())){
+                    if(result.size()!=0){
+                        for(Node node: result){
+                            if(node.getLocation().equals(countriesList.getSelectedItem())){
+                                result.remove(node);
+                                break;
+                            }
+                        }
+                    }
                     locations.remove((String)countriesList.getSelectedItem());
                     counter--;
                     west.remove(chartPanel);
@@ -208,7 +225,6 @@ public class MainUI extends JFrame {
 
             if(e.getSource()==loadData){
 
-                flag = 1;
                 startTime = fromList.getSelectedItem().toString();
                 endTime = toList.getSelectedItem().toString();
 
@@ -220,20 +236,33 @@ public class MainUI extends JFrame {
                         Time endTime = new Time(toList.getSelectedItem().toString());
                         i++;
 
-//                        try {
+                        try {
                             System.out.println("fetchData");
-//                            ArrayList<Double> get = log.fetchData(location, startTime, endTime);
-//                            Node node = new Node(location.getName(),get);
-//                            System.out.println(get);
-//                            result.add(node);
+                            ArrayList<Double> get = log.fetchData(location, startTime, endTime);
+                            System.out.println(get);
+                            if(result.size()==0){
+                                result.add(new Node(location.getName(),get));
+                            }else{
+                                boolean check = true;
+                                for(int j = 0;j<result.size();j++){
+                                    if(result.get(j).getLocation().equals(str)){
+                                        result.get(j).setData(get);
+                                        check = false;
+                                        break;
+                                    }
+                                }
+                                if(check){
+                                    result.add(new Node(location.getName(),get));
+                                }
+                            }
                             west.remove(chartPanel);
                             west.remove(outputScrollPane);
                             createReport(west);
                             createLine(west);
                             SwingUtilities.updateComponentTreeUI(west);
-//                        } catch (SQLException ex) {
-//                            throw new RuntimeException(ex);
-//                        }
+                        } catch (SQLException ex) {
+                            throw new RuntimeException(ex);
+                        }
                     }
                 }
 
@@ -280,6 +309,27 @@ public class MainUI extends JFrame {
 //        methodsNames.add("Unemployment");
 
         JButton statsBtn = new JButton("Compare by T-test");
+        statsBtn.addActionListener(e->{
+            Location location = new Location("Hamilton, Ontario");
+            Time start1 = new Time ("1981-02");		// user gives this (comes as parameter from UI call, logic.AddTimeSeries(place, startTime, endTime);
+            Time end1 = new Time ("1998-02");
+            Time start2 = new Time ("1991-02");
+            Time end2 = new Time ("1999-11");
+            try{
+                ArrayList<Double> data1 = log.fetchData(location,start1,end1);//  fetchData(place, startTime, endTime) returns data1, data2
+                System.out.println(data1);
+                ArrayList<Double> data2 =log.fetchData(location,start2,end2);
+                System.out.println(data2);
+                LogicAndComparsion.TimeSeries tseries1 = new LogicAndComparsion.TimeSeries(data1, start1, end1);
+                LogicAndComparsion.TimeSeries tseries2 = new LogicAndComparsion.TimeSeries(data2, start2, end2);
+                StatsComparison sc = log.compareTimeSeries(tseries1, tseries2);
+                System.out.println(sc.getPValue());
+                System.out.println(sc.getConclusion());
+            }catch (SQLException ex){
+                throw new RuntimeException(ex);
+            }
+
+        });
 
         JComboBox<String> methodsList = new JComboBox<String>(methodsNames);
 
@@ -328,24 +378,25 @@ public class MainUI extends JFrame {
         int i = 0;
         String reportMessage = "City NHPI Over Time Raw Data\n" + "==============================\n";
         if (locations.size() > 0) {
-            if(flag == 1) {
-                for (String location : locations) {
-                String dataInfo = locations.get(i) + "\n" + "\tStart Date _ End Date: " + startTime + " / " + endTime + "\n"
-                        + "\tNHPI: 0564846" + "\n";
+//                for (Node node : result) {
+            for(int j = 0;j<result.size();j++) {
+                String dataInfo = result.get(j).getLocation() + "\n" + "\tStart Date _ End Date: " + startTime + " / " + endTime + "\n"
+                        + "\tNHPI: " + getAverage(result.get(j)) + "\n";
 //                    String dataInfo = locations.get(i) + "\n";
-                    reportMessage = reportMessage.concat(dataInfo);
-                    i++;
-                }
-            } else {
-                for (String location : locations) {
-//                String dataInfo = locations.get(i) + "\n" + "\tStart Date _ End Date: " + startTime + " / " + endTime + "\n"
-//                        + "\tNHPI: 0564846" + "\n";
-                    String dataInfo = locations.get(i) + "\n";
-                    reportMessage = reportMessage.concat(dataInfo);
-                    i++;
-                }
+                reportMessage = reportMessage.concat(dataInfo);
+                i++;
             }
-        }
+//                }
+//            } else {
+//                for (Node node : result) {
+////                String dataInfo = locations.get(i) + "\n" + "\tStart Date _ End Date: " + startTime + " / " + endTime + "\n"
+////                        + "\tNHPI: 0564846" + "\n";
+//                    String dataInfo = locations.get(i) + "\n";
+//                    reportMessage = reportMessage.concat(dataInfo);
+//                    i++;
+//
+//                }
+            }
 
         //stats table
 //        String statsMessage = "Statistic Results of City NHPI Over Time\n" + "==========================\n";
@@ -689,6 +740,20 @@ public class MainUI extends JFrame {
 
 
     }
+    private double getAverage(Node node){
+        ArrayList<Double> temp = merge(node);
+        double temp1 = 0;
+        double counter = 0;
+        for(int i = 0;i<temp.size();i++){
+            temp1 += temp.get(i);
+            counter++;
+            if(i==temp.size()-1){
+                temp1 /= counter;
+            }
+        }
+        return temp1;
+    }
+
 
     public static void main(String[] args) {
 

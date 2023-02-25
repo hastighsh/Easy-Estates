@@ -25,48 +25,6 @@ public class Logic implements LogicIF{
 	//to checkExistence of a timeSeries:
 	Set<TimeSeries> existingTS;
 
-	public static void main(String[] args) throws SQLException {
-		Logic log = new Logic();
-		Location location = new Location("Hamilton, Ontario");
-		
-		// THE FOLLOWING COMMENTED MAIN METHOD SHOWS HOW StatsComparison(TimeSeries ts1, TimeSeries ts2) works, it's need of fetchData(location, Time, Time) etc.
-		
-		Time start1 = new Time ("1981-02");		// user gives this (comes as parameter from UI call, logic.AddTimeSeries(place, startTime, endTime);
-		Time end1 = new Time ("1998-02");
-		Time start2 = new Time ("1991-02");
-		Time end2 = new Time ("1999-11");
-
-//		System.out.println("number of years:");
-//		TimeSeries s1 = new TimeSeries(start1, end1);
-//		System.out.println(s1.yearNumber(start1, end1));
-		
-		ArrayList<Double> data1 = log.fetchData(location,start1,end1);//  fetchData(place, startTime, endTime) returns data1, data2
-		System.out.println(data1);
-		ArrayList<Double> data2 =log.fetchData(location,start2,end2);
-		System.out.println(data2);
-
-
-
-		TimeSeries tseries1 = new TimeSeries(data1, start1, end1);
-		TimeSeries tseries2 = new TimeSeries(data2, start2, end2);
-
-
-
-		/* this is where the t-test comparison happens, in the method compareTimeSeries(ts1, ts2);
-		 * the returned value is stored in an instance of StatsComparison for the UI to get values out from. The UI
-		 * uses getters to get the result of the comparison (the only thing UI needs is StatsComparison.getPValue() and StatsComparison.getConclusion();
-		 */
-
-
-		 StatsComparison sc = log.compareTimeSeries(tseries1, tseries2);
-		 System.out.println(sc.getPValue());
-		 System.out.println(sc.getConclusion());
-
-		
-
-	}
-
-	
 	public Logic() {
 
 		existingTS = new HashSet<TimeSeries>();
