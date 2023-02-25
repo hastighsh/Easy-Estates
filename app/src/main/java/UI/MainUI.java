@@ -220,6 +220,7 @@ public class MainUI extends JFrame {
                             result.add(node);
                             west.remove(chartPanel);
                             createLine(west);
+                            SwingUtilities.updateComponentTreeUI(west);
                         } catch (SQLException ex) {
                             throw new RuntimeException(ex);
                         }
@@ -623,46 +624,47 @@ public class MainUI extends JFrame {
         double year = 0;
         double month = 0;
         XYSeriesCollection dataset = new XYSeriesCollection();
-        String tempStart = startTime;
-        String tempEnd = endTime;
         for(String location: locations){
             XYSeries xy = new XYSeries(location);
             dataset.addSeries(xy);
             for(Node node : result){
                 if(location.equals(node.getLocation())){
-                    year = Integer.parseInt(startTime.substring(0,4));
-                    month = Integer.parseInt((startTime.substring(startTime.length()-2)));
-                    for(int i = 0 ;i<node.getData().size();i+=3){
-                        double temp = increasement(year,month);
-                        temp = (temp*100.0)/100.0;
-                        month +=0.01;
-                        if(temp!=-1.0){
-                            xy.add(temp,node.getData().get(i));
-                        }
-                        else{
-                            break;
-                        }
+                    int startYear = Integer.parseInt(startTime.substring(0,4));
+                    ArrayList<Double> temp = merge(node);
+                    for(int i = 0 ;i<temp.size();i++){
+                        xy.add(startYear+i,temp.get(i));
                     }
                 }
             }
         }
         return dataset;
     }
-    private double increasement(double year,double month){
-        double endYear = Integer.parseInt(endTime.substring(0,4));
-        double endMonth = (Integer.parseInt((endTime.substring(endTime.length()-2))))/100.0;
-        if(month>0.12){
-            year++;
-            month = 0.01;
+    private ArrayList<Double> merge(Node node){
+        ArrayList<Double> result = new ArrayList<>();
+        double temp = 0;
+        double counter = 1;
+        int startYear = Integer.parseInt(startTime.substring(0,4));
+        int startMonth = Integer.parseInt(startTime.substring(startTime.length()-2));
+        int endYear = Integer.parseInt(endTime.substring(0,4));
+        int endMonth = Integer.parseInt(endTime.substring(endTime.length()-2));
+        int i = 0;
+
+        while((startYear*100+startMonth)!=(endYear*100+endMonth+1)&&i<node.getData().size()){
+            if(startMonth>13){
+                startYear++;
+                startMonth = 1;
+                temp = temp/counter;
+                result.add(temp);
+                counter=1;
+            }
+            temp += node.getData().get(i);
+            i+=3;
+            counter++;
+            startMonth++;
         }
+        return result;
 
 
-        if((year+month)==(endYear+endMonth)){
-            return -1.0;
-        }
-        else{
-            return year+month;
-        }
     }
 
     public static void main(String[] args) {
