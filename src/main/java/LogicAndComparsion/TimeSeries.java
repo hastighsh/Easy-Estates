@@ -80,4 +80,24 @@ public class TimeSeries {
 	public String getTempStart(){
 		return tempStart;
 	}
+
+	public int yearNumber(Time startTime, Time endTime){
+		int count = 0;
+		int start = getYear(startTime);
+		int end = getYear(endTime);
+
+		while(start++ < end) {
+			count++;
+		}
+
+		return count;
+
+	}
+
+	public int getYear(Time time){
+		int year = 0;
+		String timeString = time.getName().substring(0,4);
+		year = Integer.parseInt(timeString);
+		return year;
+	}
 }

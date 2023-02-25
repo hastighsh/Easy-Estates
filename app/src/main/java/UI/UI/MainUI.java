@@ -82,6 +82,7 @@ public class MainUI extends JFrame {
     Logic log = new Logic();
     String startTime= "";
     String endTime = "";
+    int flag = 0;
     double resultForIncrse;
 
     public static MainUI getInstance() {
@@ -157,6 +158,7 @@ public class MainUI extends JFrame {
             if(e.getSource() == addLocation){
                 if(!locations.contains((String)countriesList.getSelectedItem())){
                     locations.add((String)countriesList.getSelectedItem());
+
                     counter++;
                     west.remove(chartPanel);
                     west.remove(outputScrollPane);
@@ -199,11 +201,17 @@ public class MainUI extends JFrame {
         fromList = new JComboBox<String>(years);
         toList = new JComboBox<String>(years);
 
+        //load button
         JButton loadData = new JButton("Load Data");
+
         loadData.addActionListener (e->{
+
             if(e.getSource()==loadData){
+
+                flag = 1;
                 startTime = fromList.getSelectedItem().toString();
                 endTime = toList.getSelectedItem().toString();
+
                 if(!startTime.equals(endTime)) {
                     int i = 0;
                     for (String str : locations) {
@@ -212,21 +220,25 @@ public class MainUI extends JFrame {
                         Time endTime = new Time(toList.getSelectedItem().toString());
                         i++;
 
-                        try {
+//                        try {
                             System.out.println("fetchData");
-                            ArrayList<Double> get = log.fetchData(location, startTime, endTime);
-                            Node node = new Node(location.getName(),get);
-                            System.out.println(get);
-                            result.add(node);
+//                            ArrayList<Double> get = log.fetchData(location, startTime, endTime);
+//                            Node node = new Node(location.getName(),get);
+//                            System.out.println(get);
+//                            result.add(node);
                             west.remove(chartPanel);
+                            west.remove(outputScrollPane);
+                            createReport(west);
                             createLine(west);
                             SwingUtilities.updateComponentTreeUI(west);
-                        } catch (SQLException ex) {
-                            throw new RuntimeException(ex);
-                        }
+//                        } catch (SQLException ex) {
+//                            throw new RuntimeException(ex);
+//                        }
                     }
                 }
+
             }
+
         });
 
         JPanel north = new JPanel(); //making a panel (top)
@@ -316,11 +328,22 @@ public class MainUI extends JFrame {
         int i = 0;
         String reportMessage = "City NHPI Over Time Raw Data\n" + "==============================\n";
         if (locations.size() > 0) {
-            for (String location : locations) {
-                String dataInfo = locations.get(i) + "\n" + "\tStart Date _ End Date: 1991-5 / 1995-6\n"
+            if(flag == 1) {
+                for (String location : locations) {
+                String dataInfo = locations.get(i) + "\n" + "\tStart Date _ End Date: " + startTime + " / " + endTime + "\n"
                         + "\tNHPI: 0564846" + "\n";
-                reportMessage = reportMessage.concat(dataInfo);
-                i++;
+//                    String dataInfo = locations.get(i) + "\n";
+                    reportMessage = reportMessage.concat(dataInfo);
+                    i++;
+                }
+            } else {
+                for (String location : locations) {
+//                String dataInfo = locations.get(i) + "\n" + "\tStart Date _ End Date: " + startTime + " / " + endTime + "\n"
+//                        + "\tNHPI: 0564846" + "\n";
+                    String dataInfo = locations.get(i) + "\n";
+                    reportMessage = reportMessage.concat(dataInfo);
+                    i++;
+                }
             }
         }
 
