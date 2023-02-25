@@ -111,7 +111,9 @@ public class Logic implements LogicIF{
 		return configuredData;
 	}
 	
-	
+	/* TO GET THE RESULT OF THE T-TEST: THE FOLLOWING METHOD RETURNS AN OBJECT OF CLASS statsComparison().
+	* USE THE RETURN VALUE OF THE FOLLOWING METHOD WITH THE GETTER statsComparison.getPValue(): double, getConclusion(): String
+	* YOU CAN PRINT THIS FOR TESTING THE CURRENT FUNCTIONALITY BETWEEN TWO TimeSeries*/
 	public StatsComparison compareTimeSeries(TimeSeries ts1, TimeSeries ts2) { // for use case 4			FINISHED!!
 		
 		boolean exists = checkExistence(ts1, ts2);
