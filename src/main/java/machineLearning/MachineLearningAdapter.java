@@ -13,8 +13,8 @@ public class MachineLearningAdapter {
 
     public List predict(List data, int months){
         Instances newData = convertDataIn(data);
-        List prediction = module.prediction(newData, months);
-        return prediction;        
+        Instances prediction = module.prediction(newData, months);        
+        return convertDataout(prediction);
     }
 
     private Instances convertDataIn(List dataIn){
