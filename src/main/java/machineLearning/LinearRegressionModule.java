@@ -26,7 +26,7 @@ public class LinearRegressionModule implements MachineLearningModule{
      * @param data The data must be of two columns, INDEX and VALUE
      * @return ML model
      */
-    public LinearRegression linearRegressionForumula(Instances data) throws Exception{
+    public LinearRegression linearRegressionForumula(Instances data) throws Exception{        
         LinearRegression lr = new LinearRegression();
         lr.buildClassifier(data);
         return lr;
@@ -37,11 +37,15 @@ public class LinearRegressionModule implements MachineLearningModule{
     public Instances prediction(Instances data, int months){
         LinearRegression lr = null;
         Instances results = null;
+        
+        data.setClassIndex(data.numAttributes()-1);//need to set class index, to the last attribute
+
         try{
             lr = linearRegressionForumula(data);
             results = predictGivenModel(lr, data, months);
         }
         catch(Exception e) {
+            System.out.println("some error occured here");
             System.out.println(e.toString());
         }
         return results;
@@ -57,14 +61,12 @@ public class LinearRegressionModule implements MachineLearningModule{
      */
     public Instances predictGivenModel(LinearRegression model, Instances data, int months) throws Exception{
         int monthsLimit = data.numInstances();
-        Instances results = createIndexList(monthsLimit+1, months); //creates a nx1 list
-        Attribute values = new Attribute("VALUE");      
-        results.insertAttributeAt(values, 1);              //extends a new col for VALUES
+        Instances results = createIndexList(monthsLimit+1, months); //creates a nx1 list        
 
         for (int i = 0; i < months; i++) {
             Instance newInst = results.instance(i);
             double prediction = model.classifyInstance(newInst);
-            newInst.setValue(values, prediction);            
+            newInst.setValue(results.attribute(results.numAttributes()-1), prediction);            
         }
         return results;
     }
@@ -80,8 +82,10 @@ public class LinearRegressionModule implements MachineLearningModule{
     public Instances createIndexList(int start, int length){
         ArrayList<Attribute> atts = new ArrayList<Attribute>(1);
         Attribute index = new Attribute("INDEX");
+        Attribute values = new Attribute("VALUE");    
         atts.add(index);
-        Instances indexSet = new Instances("TestInstances",atts,0);
+        atts.add(values);
+        Instances indexSet = new Instances("DATA",atts,0);
 
         for (int i = 0; i < length; i++) {
             double[] instanceVal = new double[indexSet.numAttributes()];
