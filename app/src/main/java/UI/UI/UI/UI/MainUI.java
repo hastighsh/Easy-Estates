@@ -87,7 +87,7 @@ public class MainUI extends JFrame {
     JComboBox<String> fromList, toList;
     JPanel west;
     JFreeChart chart;
-    ChartPanel chartPanel,chartTimeSerisePanel;
+    ChartPanel chartPanel,chartTimeSerisePanel, scatterTimeSeriesPanel;
     JScrollPane outputScrollPane;
     Logic log = new Logic();
     String startTime= "";
@@ -160,7 +160,7 @@ public class MainUI extends JFrame {
 //        countriesList.addActionListener(m);
         JButton addLocation = new JButton("+"); // adding button
 
-        JLabel test = new JLabel("added: " );
+
         JLabel test1 = new JLabel("" );
 
 
@@ -169,12 +169,13 @@ public class MainUI extends JFrame {
                 if(!locations.contains((String)countriesList.getSelectedItem())){
                     locations.add((String)countriesList.getSelectedItem());
                     counter++;
-                    west.remove(chartTimeSerisePanel);
-                    west.remove(chartPanel);
-                    west.remove(outputScrollPane);
-                    createReport(west);
-                    createLine(west);
-                    createTimeSeries(west);
+//                    west.remove(chartTimeSerisePanel);
+//                    west.remove(chartPanel);
+//                    west.remove(outputScrollPane);
+//                    createReport(west);
+//                    createLine(west);
+//                    createTimeSeries(west);
+                    updateView(west);
                     SwingUtilities.updateComponentTreeUI(west);
                 }
 
@@ -202,12 +203,13 @@ public class MainUI extends JFrame {
                     }
                     locations.remove((String)countriesList.getSelectedItem());
                     counter--;
-                    west.remove(chartTimeSerisePanel);
-                    west.remove(chartPanel);
-                    west.remove(outputScrollPane);
-                    createReport(west);
-                    createLine(west);
-                    createTimeSeries(west);
+//                    west.remove(chartTimeSerisePanel);
+//                    west.remove(chartPanel);
+//                    west.remove(outputScrollPane);
+//                    createReport(west);
+//                    createLine(west);
+//                    createTimeSeries(west);
+                    updateView(west);
                     SwingUtilities.updateComponentTreeUI(west);
                 }
             }
@@ -233,6 +235,7 @@ public class MainUI extends JFrame {
                 endTime = toList.getSelectedItem().toString();
 
                 if(!startTime.equals(endTime)) {
+                    // !!!!! throw exception or error window to choose two different time !!!!!!!!!!
                     int i = 0;
                     for (String str : locations) {
                         Location location = new Location(locations.get(i));
@@ -244,11 +247,11 @@ public class MainUI extends JFrame {
                             System.out.println("fetchData");
                             ArrayList<Double> get = log.fetchData(location, startTime, endTime);
                             System.out.println(get);
-                            if(result.size()==0){
+                            if(result.size()==0){ // if the result array is empty add one node to it
                                 result.add(new Node(location.getName(),get));
                             }else{
                                 boolean check = true;
-                                for(int j = 0;j<result.size();j++){
+                                for(int j = 0; j < result.size(); j++){
                                     if(result.get(j).getLocation().equals(str)){
                                         result.get(j).setData(get);
                                         check = false;
@@ -259,12 +262,13 @@ public class MainUI extends JFrame {
                                     result.add(new Node(location.getName(),get));
                                 }
                             }
-                            west.remove(chartTimeSerisePanel);
-                            west.remove(chartPanel);
-                            west.remove(outputScrollPane);
-                            createReport(west);
-                            createLine(west);
-                            createTimeSeries(west);
+//                            west.remove(chartTimeSerisePanel);
+//                            west.remove(chartPanel);
+//                            west.remove(outputScrollPane);
+//                            createReport(west);
+//                            createLine(west);
+//                            createTimeSeries(west);
+                            updateView(west);
                             SwingUtilities.updateComponentTreeUI(west);
                         } catch (SQLException ex) {
                             throw new RuntimeException(ex);
@@ -277,7 +281,6 @@ public class MainUI extends JFrame {
         });
 
         JPanel north = new JPanel(); //making a panel (top)
-        north.add(test);
         north.add(test1);
         north.add(chooseCountryLabel);
         north.add(countriesList);
@@ -294,8 +297,14 @@ public class MainUI extends JFrame {
 
         JLabel viewsLabel = new JLabel("Available Views: ");
 
+
+        // Available views
         Vector<String> viewsNames = new Vector<String>();
         viewsNames.add("Line Chart");
+        viewsNames.add("Time Series Chart");
+        viewsNames.add("Bar Chart");
+        viewsNames.add("Scatter Chart");
+
 
         JComboBox<String> viewsList = new JComboBox<String>(viewsNames);
         JButton addView = new JButton("+");
@@ -363,10 +372,10 @@ public class MainUI extends JFrame {
     private void createCharts(JPanel west) {
         createReport(west);
         createLine(west);
-        createTimeSeries(west);
-        createBar(west);
-        createPie(west);
-        createScatter(west);
+        createTimeSeries(west); // Hasti
+//        createBar(west); // Lee
+//        createPie(west); //Lee
+        createScatter(west); //
 
     }
 
@@ -418,63 +427,87 @@ public class MainUI extends JFrame {
     }
 
     private void createScatter(JPanel west) {
-        TimeSeries series1 = new TimeSeries("Mortality/1000 births");
-        series1.add(new Year(2018), 5.6);
-        series1.add(new Year(2017), 5.7);
-        series1.add(new Year(2016), 5.8);
-        series1.add(new Year(2015), 5.8);
-        series1.add(new Year(2014), 5.9);
-        series1.add(new Year(2013), 6.0);
-        series1.add(new Year(2012), 6.1);
-        series1.add(new Year(2011), 6.2);
-        series1.add(new Year(2010), 6.4);
-
-        TimeSeries series2 = new TimeSeries("Health Expenditure per Capita");
-        series2.add(new Year(2018), 10624);
-        series2.add(new Year(2017), 10209);
-        series2.add(new Year(2016), 9877);
-        series2.add(new Year(2015), 9491);
-        series2.add(new Year(2014), 9023);
-        series2.add(new Year(2013), 8599);
-        series2.add(new Year(2012), 8399);
-        series2.add(new Year(2011), 8130);
-        series2.add(new Year(2010), 7930);
-        TimeSeriesCollection dataset2 = new TimeSeriesCollection();
-        dataset2.addSeries(series2);
-
-        TimeSeries series3 = new TimeSeries("Hospital Beds/1000 people");
-        series3.add(new Year(2018), 2.92);
-        series3.add(new Year(2017), 2.87);
-        series3.add(new Year(2016), 2.77);
-        series3.add(new Year(2015), 2.8);
-        series3.add(new Year(2014), 2.83);
-        series3.add(new Year(2013), 2.89);
-        series3.add(new Year(2012), 2.93);
-        series3.add(new Year(2011), 2.97);
-        series3.add(new Year(2010), 3.05);
+//        TimeSeries series1 = new TimeSeries("Mortality/1000 births");
+//        series1.add(new Year(2018), 5.6);
+//        series1.add(new Year(2017), 5.7);
+//        series1.add(new Year(2016), 5.8);
+//        series1.add(new Year(2015), 5.8);
+//        series1.add(new Year(2014), 5.9);
+//        series1.add(new Year(2013), 6.0);
+//        series1.add(new Year(2012), 6.1);
+//        series1.add(new Year(2011), 6.2);
+//        series1.add(new Year(2010), 6.4);
+//
+//        TimeSeries series2 = new TimeSeries("Health Expenditure per Capita");
+//        series2.add(new Year(2018), 10624);
+//        series2.add(new Year(2017), 10209);
+//        series2.add(new Year(2016), 9877);
+//        series2.add(new Year(2015), 9491);
+//        series2.add(new Year(2014), 9023);
+//        series2.add(new Year(2013), 8599);
+//        series2.add(new Year(2012), 8399);
+//        series2.add(new Year(2011), 8130);
+//        series2.add(new Year(2010), 7930);
+//        TimeSeriesCollection dataset2 = new TimeSeriesCollection();
+//        dataset2.addSeries(series2);
+//
+//        TimeSeries series3 = new TimeSeries("Hospital Beds/1000 people");
+//        series3.add(new Year(2018), 2.92);
+//        series3.add(new Year(2017), 2.87);
+//        series3.add(new Year(2016), 2.77);
+//        series3.add(new Year(2015), 2.8);
+//        series3.add(new Year(2014), 2.83);
+//        series3.add(new Year(2013), 2.89);
+//        series3.add(new Year(2012), 2.93);
+//        series3.add(new Year(2011), 2.97);
+//        series3.add(new Year(2010), 3.05);
+//
+//        TimeSeriesCollection dataset = new TimeSeriesCollection();
+////        dataset.addSeries(series1);
+////        dataset.addSeries(series3);
+//
+//        XYPlot plot = new XYPlot();
+//        XYItemRenderer itemrenderer1 = new XYLineAndShapeRenderer(false, true);
+//        XYItemRenderer itemrenderer2 = new XYLineAndShapeRenderer(false, true);
+//
+//        plot.setDataset(0, dataset);
+//        plot.setRenderer(0, itemrenderer1);
+//        DateAxis domainAxis = new DateAxis("Year");
+//        plot.setDomainAxis(domainAxis);
+//        plot.setRangeAxis(new NumberAxis(""));
+//
+//        plot.setDataset(1, dataset2);
+//        plot.setRenderer(1, itemrenderer2);
+//        plot.setRangeAxis(1, new NumberAxis("US$"));
+//
+//        plot.mapDatasetToRangeAxis(0, 0);// 1st dataset to 1st y-axis
+//        plot.mapDatasetToRangeAxis(1, 1); // 2nd dataset to 2nd y-axis
+//
+//        JFreeChart scatterChart = new JFreeChart("Mortality vs Expenses & Hospital Beds",
+//                new Font("Serif", java.awt.Font.BOLD, 18), plot, true);
 
         TimeSeriesCollection dataset = new TimeSeriesCollection();
-        dataset.addSeries(series1);
-        dataset.addSeries(series3);
+//        dataset.addSeries(series1);
+//        dataset.addSeries(series3);
 
         XYPlot plot = new XYPlot();
         XYItemRenderer itemrenderer1 = new XYLineAndShapeRenderer(false, true);
         XYItemRenderer itemrenderer2 = new XYLineAndShapeRenderer(false, true);
 
-        plot.setDataset(0, dataset);
+        plot.setDataset(0, dataset());
         plot.setRenderer(0, itemrenderer1);
         DateAxis domainAxis = new DateAxis("Year");
         plot.setDomainAxis(domainAxis);
-        plot.setRangeAxis(new NumberAxis(""));
+        plot.setRangeAxis(new NumberAxis("NHPI"));
 
-        plot.setDataset(1, dataset2);
+//        plot.setDataset(1, dataset2);
         plot.setRenderer(1, itemrenderer2);
-        plot.setRangeAxis(1, new NumberAxis("US$"));
+        plot.setRangeAxis(1, new NumberAxis("?"));
 
         plot.mapDatasetToRangeAxis(0, 0);// 1st dataset to 1st y-axis
         plot.mapDatasetToRangeAxis(1, 1); // 2nd dataset to 2nd y-axis
 
-        JFreeChart scatterChart = new JFreeChart("Mortality vs Expenses & Hospital Beds",
+        JFreeChart scatterChart = new JFreeChart("NHPI of Cities Over Time",
                 new Font("Serif", java.awt.Font.BOLD, 18), plot, true);
 
 
@@ -483,13 +516,13 @@ public class MainUI extends JFrame {
 //        multiChart.add(scatterChart);
 
 //        JScrollPane scroll = new JScrollPane(scatterChart);
-        ChartPanel chartPanel = new ChartPanel(scatterChart);
-        chartPanel.setPreferredSize(new Dimension(350, 300));
-        JScrollPane scroll = new JScrollPane(chartPanel);
-        scroll.setPreferredSize(new Dimension(400, 300));
-        scroll.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        scroll.setBackground(Color.white);
-        west.add(scroll);
+        scatterTimeSeriesPanel = new ChartPanel(scatterChart);
+//        chartPanel.setPreferredSize(new Dimension(350, 300));
+//        JScrollPane scroll = new JScrollPane(chartPanel);
+        scatterTimeSeriesPanel.setPreferredSize(new Dimension(400, 300));
+        scatterTimeSeriesPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        scatterTimeSeriesPanel.setBackground(Color.white);
+        west.add(scatterTimeSeriesPanel);
     }
 
     private void createPie(JPanel west) {
@@ -673,23 +706,29 @@ public class MainUI extends JFrame {
         plot.setRenderer(0, splinerenderer1);
         DateAxis domainAxis = new DateAxis("Year");
         plot.setDomainAxis(domainAxis);
-        plot.setRangeAxis(new NumberAxis(""));
+        plot.setRangeAxis(new NumberAxis("NHPI"));
 
 //        plot.setDataset(1, dataset2);
         plot.setRenderer(1, splinerenderer2);
-        plot.setRangeAxis(1, new NumberAxis("US$"));
+        plot.setRangeAxis(1, new NumberAxis("?"));
 
         plot.mapDatasetToRangeAxis(0, 0);// 1st dataset to 1st y-axis
         plot.mapDatasetToRangeAxis(1, 1); // 2nd dataset to 2nd y-axis
 
-        JFreeChart chart = new JFreeChart("Mortality vs Expenses & Hospital Beds",
+        JFreeChart chart = new JFreeChart("NHPI of Cities Over Time",
                 new Font("Serif", java.awt.Font.BOLD, 18), plot, true);
 
+//        chartTimeSerisePanel = new ChartPanel(chart);
+//        chartPanel.setPreferredSize(new Dimension(400, 300));
+//        chartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+//        chartPanel.setBackground(Color.white);
+//        west.add(chartPanel);
+
         chartTimeSerisePanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new Dimension(400, 300));
-        chartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        chartPanel.setBackground(Color.white);
-        west.add(chartPanel);
+        chartTimeSerisePanel.setPreferredSize(new Dimension(400, 300));
+        chartTimeSerisePanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        chartTimeSerisePanel.setBackground(Color.white);
+        west.add(chartTimeSerisePanel);
 
     }
 
@@ -759,6 +798,18 @@ public class MainUI extends JFrame {
             }
         }
         return temp1;
+    }
+
+    public void updateView(JPanel west){
+
+        west.remove(chartPanel);
+        west.remove(outputScrollPane);
+        west.remove(chartTimeSerisePanel);
+        west.remove(scatterTimeSeriesPanel);
+        createReport(west);
+        createLine(west);
+        createTimeSeries(west);
+        createScatter(west);
     }
 
 
