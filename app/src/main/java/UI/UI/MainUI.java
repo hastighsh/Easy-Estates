@@ -86,8 +86,8 @@ public class MainUI extends JFrame {
     private static int counter = 0;
     JComboBox<String> fromList, toList;
     JPanel west;
-    JFreeChart chart;
-    ChartPanel chartPanel,chartTimeSerisePanel;
+    JFreeChart chart,barChart;
+    ChartPanel chartPanel,chartTimeSerisePanel,barChartPanel;
     JScrollPane outputScrollPane;
     Logic log = new Logic();
     String startTime= "";
@@ -169,11 +169,12 @@ public class MainUI extends JFrame {
                 if(!locations.contains((String)countriesList.getSelectedItem())){
                     locations.add((String)countriesList.getSelectedItem());
                     counter++;
-                    west.remove(chartTimeSerisePanel);
                     west.remove(chartPanel);
                     west.remove(outputScrollPane);
+                    west.remove(barChartPanel);
                     createReport(west);
                     createLine(west);
+                    createBar(west);
 //                    createTimeSeries(west);
                     SwingUtilities.updateComponentTreeUI(west);
                 }
@@ -202,11 +203,12 @@ public class MainUI extends JFrame {
                     }
                     locations.remove((String)countriesList.getSelectedItem());
                     counter--;
-                    west.remove(chartTimeSerisePanel);
+                    west.remove(barChartPanel);
                     west.remove(chartPanel);
                     west.remove(outputScrollPane);
                     createReport(west);
                     createLine(west);
+                    createBar(west);
 //                    createTimeSeries(west);
                     SwingUtilities.updateComponentTreeUI(west);
                 }
@@ -215,9 +217,7 @@ public class MainUI extends JFrame {
 
         Vector<String> years = new Vector<String>();
         for (int i = 2022; i >= 1981; i--) {
-            for(int j = 12; j >= 1; j--) {
-                years.add("" + i + "-" + j);
-            }
+                years.add("" + i);
         }
         fromList = new JComboBox<String>(years);
         toList = new JComboBox<String>(years);
@@ -237,13 +237,13 @@ public class MainUI extends JFrame {
                     for (String str : locations) {
                         Location location = new Location(locations.get(i));
                         Time startTime = new Time(fromList.getSelectedItem().toString());
+
                         Time endTime = new Time(toList.getSelectedItem().toString());
                         i++;
 
                         try {
                             System.out.println("fetchData");
                             ArrayList<Double> get = log.fetchData(location, startTime, endTime);
-                            System.out.println(get);
                             if(result.size()==0){
                                 result.add(new Node(location.getName(),get));
                             }else{
@@ -259,12 +259,12 @@ public class MainUI extends JFrame {
                                     result.add(new Node(location.getName(),get));
                                 }
                             }
-                            west.remove(chartTimeSerisePanel);
+                            west.remove(barChartPanel);
                             west.remove(chartPanel);
                             west.remove(outputScrollPane);
                             createReport(west);
                             createLine(west);
-                            createTimeSeries(west);
+                            createBar(west);
                             SwingUtilities.updateComponentTreeUI(west);
                         } catch (SQLException ex) {
                             throw new RuntimeException(ex);
@@ -519,57 +519,51 @@ public class MainUI extends JFrame {
     }
 
     private void createBar(JPanel west) {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        dataset.setValue(5.6, "Mortality/1000 births", "2018");
-        dataset.setValue(5.7, "Mortality/1000 births", "2017");
-        dataset.setValue(5.8, "Mortality/1000 births", "2016");
-        dataset.setValue(5.8, "Mortality/1000 births", "2015");
-        dataset.setValue(5.9, "Mortality/1000 births", "2014");
-        dataset.setValue(6, "Mortality/1000 births", "2013");
-        dataset.setValue(6.1, "Mortality/1000 births", "2012");
-        dataset.setValue(6.2, "Mortality/1000 births", "2011");
-        dataset.setValue(6.4, "Mortality/1000 births", "2010");
-
-        dataset.setValue(2.92, "Hospital beds/1000 people", "2018");
-        dataset.setValue(2.87, "Hospital beds/1000 people", "2017");
-        dataset.setValue(2.77, "Hospital beds/1000 people", "2016");
-        dataset.setValue(2.8, "Hospital beds/1000 people", "2015");
-        dataset.setValue(2.83, "Hospital beds/1000 people", "2014");
-        dataset.setValue(2.89, "Hospital beds/1000 people", "2013");
-        dataset.setValue(2.93, "Hospital beds/1000 people", "2012");
-        dataset.setValue(2.97, "Hospital beds/1000 people", "2011");
-        dataset.setValue(3.05, "Hospital beds/1000 people", "2010");
-
-        DefaultCategoryDataset dataset2 = new DefaultCategoryDataset();
-
-        dataset2.setValue(10623, "Health Expenditure per Capita", "2018");
-        dataset2.setValue(10209, "Health Expenditure per Capita", "2017");
-        dataset2.setValue(9877, "Health Expenditure per Capita", "2016");
-        dataset2.setValue(9491, "Health Expenditure per Capita", "2015");
-        dataset2.setValue(9023, "Health Expenditure per Capita", "2014");
-        dataset2.setValue(8599, "Health Expenditure per Capita", "2013");
-        dataset2.setValue(8399, "Health Expenditure per Capita", "2012");
-        dataset2.setValue(8130, "Health Expenditure per Capita", "2011");
-        dataset2.setValue(7930, "Health Expenditure per Capita", "2010");
+//        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+//        dataset.setValue(5.6, "Mortality/1000 births", "2018");
+//        dataset.setValue(5.7, "Mortality/1000 births", "2017");
+//        dataset.setValue(5.8, "Mortality/1000 births", "2016");
+//        dataset.setValue(5.8, "Mortality/1000 births", "2015");
+//        dataset.setValue(5.9, "Mortality/1000 births", "2014");
+//        dataset.setValue(6, "Mortality/1000 births", "2013");
+//        dataset.setValue(6.1, "Mortality/1000 births", "2012");
+//        dataset.setValue(6.2, "Mortality/1000 births", "2011");
+//        dataset.setValue(6.4, "Mortality/1000 births", "2010");
+//
+//        dataset.setValue(2.92, "Hospital beds/1000 people", "2018");
+//        dataset.setValue(2.87, "Hospital beds/1000 people", "2017");
+//        dataset.setValue(2.77, "Hospital beds/1000 people", "2016");
+//        dataset.setValue(2.8, "Hospital beds/1000 people", "2015");
+//        dataset.setValue(2.83, "Hospital beds/1000 people", "2014");
+//        dataset.setValue(2.89, "Hospital beds/1000 people", "2013");
+//        dataset.setValue(2.93, "Hospital beds/1000 people", "2012");
+//        dataset.setValue(2.97, "Hospital beds/1000 people", "2011");
+//        dataset.setValue(3.05, "Hospital beds/1000 people", "2010");
+//
+//        DefaultCategoryDataset dataset2 = new DefaultCategoryDataset();
+//
+//        dataset2.setValue(10623, "Health Expenditure per Capita", "2018");
+//        dataset2.setValue(10209, "Health Expenditure per Capita", "2017");
+//        dataset2.setValue(9877, "Health Expenditure per Capita", "2016");
+//        dataset2.setValue(9491, "Health Expenditure per Capita", "2015");
+//        dataset2.setValue(9023, "Health Expenditure per Capita", "2014");
+//        dataset2.setValue(8599, "Health Expenditure per Capita", "2013");
+//        dataset2.setValue(8399, "Health Expenditure per Capita", "2012");
+//        dataset2.setValue(8130, "Health Expenditure per Capita", "2011");
+//        dataset2.setValue(7930, "Health Expenditure per Capita", "2010");
 
         CategoryPlot plot = new CategoryPlot();
-        BarRenderer barrenderer1 = new BarRenderer();
-        BarRenderer barrenderer2 = new BarRenderer();
-
-        plot.setDataset(0, dataset);
-        plot.setRenderer(0, barrenderer1);
+        plot.setDataset(0, datasetD());
+        plot.setRenderer(0,  new BarRenderer());
         CategoryAxis domainAxis = new CategoryAxis("Year");
         plot.setDomainAxis(domainAxis);
-        plot.setRangeAxis(new NumberAxis(""));
+        plot.setRangeAxis(new NumberAxis("NHPI"));
 
-        plot.setDataset(1, dataset2);
-        plot.setRenderer(1, barrenderer2);
-        plot.setRangeAxis(1, new NumberAxis("US$"));
 
         plot.mapDatasetToRangeAxis(0, 0);// 1st dataset to 1st y-axis
         plot.mapDatasetToRangeAxis(1, 1); // 2nd dataset to 2nd y-axis
 
-        JFreeChart barChart = new JFreeChart("Mortality vs Expenses & Hospital Beds",
+        barChart = new JFreeChart("Mortality vs Expenses & Hospital Beds",
                 new Font("Serif", java.awt.Font.BOLD, 18), plot, true);
 
         // Different way to create bar chart
@@ -583,11 +577,11 @@ public class MainUI extends JFrame {
          * "Percentage", dataset, PlotOrientation.VERTICAL, true, true, false);
          */
 
-        ChartPanel chartPanel = new ChartPanel(barChart);
-        chartPanel.setPreferredSize(new Dimension(400, 300));
-        chartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        chartPanel.setBackground(Color.white);
-        west.add(chartPanel);
+        barChartPanel = new ChartPanel(barChart);
+        barChartPanel.setPreferredSize(new Dimension(400, 300));
+        barChartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        barChartPanel.setBackground(Color.white);
+        west.add(barChartPanel);
     }
 
     private void createLine(JPanel west) {
@@ -717,14 +711,30 @@ public class MainUI extends JFrame {
         }
         return dataset;
     }
-//    private DefaultCategoryDataset datasetD(){
-//
-//    }
+    private DefaultCategoryDataset datasetD(){
+        DefaultCategoryDataset data = new DefaultCategoryDataset();
+        if(!(locations ==null)) {
+            for (String loc : locations) {
+                for (Node node : result) {
+                    if(loc.equals(node.getLocation())) {
+                        int startYear = Integer.parseInt(startTime);
+                        ArrayList<Double> temp = merge(node);
+                        System.out.println(temp);
+                        for (double value : temp) {
+                            data.addValue(value, loc, "" + startYear);
+                            startYear++;
+                        }
+                    }
+                }
+            }
+        }
+        return data;
+    }
     private ArrayList<Double> merge(Node node){
         ArrayList<Double> result = new ArrayList<>();
         double temp = 0;
         double counter = 1;
-        int startYear = Integer.parseInt(startTime.substring(0,4));
+        int startYear = Integer.parseInt(startTime);
         int startMonth = Integer.parseInt(startTime.substring(startTime.length()-2));
         int endYear = Integer.parseInt(endTime.substring(0,4));
         int endMonth = Integer.parseInt(endTime.substring(endTime.length()-2));
