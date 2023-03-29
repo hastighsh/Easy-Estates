@@ -8,9 +8,20 @@ import weka.core.DenseInstance;
 import weka.core.Instances;
 import weka.core.Instance;
 
+/**
+ * Machine learning adapter for the Logic to convert the given data 
+ * for the machine learning module to handle.
+ * 
+ * @author James Prime
+ * @author @JPrime1
+ * @version 1.2
+ */
+
 public class MachineLearningAdapter {
     MachineLearningModule module;
     /**
+     * Create the machine learning adapter when given a
+     * Machine Learning Technique Module
      * 
      * @param module
      */
@@ -47,7 +58,7 @@ public class MachineLearningAdapter {
     }
 
     /**
-     * Converts data into an instances data type
+     * Converts given data into an Instances data type
      * 
      * @param dataIn - expects a 1 col matrix of values
      * @return dataset - instances with INDEX and VALUE as attributes

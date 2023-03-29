@@ -12,26 +12,13 @@ import weka.core.Instances;
  * Linear Regression Module that handles machine learning with linear regression as the ML technique
  * @author James Prime
  * @author @JPrime1
- * @version 1.0
+ * @version 1.1
  */
 
 public class LinearRegressionModule implements MachineLearningModule{
 
     public LinearRegressionModule() {
     }
-
-    /**
-     * Generates linear regression model given data
-     * 
-     * @param data The data must be of two columns, INDEX and VALUE
-     * @return ML model
-     */
-    public LinearRegression linearRegressionForumula(Instances data) throws Exception{        
-        LinearRegression lr = new LinearRegression();
-        lr.buildClassifier(data);
-        return lr;
-    }
-
     
     @Override    
     public Instances prediction(Instances data, int months){
@@ -52,14 +39,26 @@ public class LinearRegressionModule implements MachineLearningModule{
     }
 
     /**
-     * creates prediction of the data given the specific model instance
+     * Generates linear regression model given data
+     * 
+     * @param data The data must be of two columns, INDEX and VALUE
+     * @return ML model
+     */
+    private LinearRegression linearRegressionForumula(Instances data) throws Exception{        
+        LinearRegression lr = new LinearRegression();
+        lr.buildClassifier(data);
+        return lr;
+    }
+
+    /**
+     * Creates prediction of the data given the specific model instance
      * @param model
      * @param data
      * @param months
      * @return
      * @throws Exception
      */
-    public Instances predictGivenModel(LinearRegression model, Instances data, int months) throws Exception{
+    private Instances predictGivenModel(LinearRegression model, Instances data, int months) throws Exception{
         int monthsLimit = data.numInstances();
         Instances results = createIndexList(monthsLimit+1, months); //creates a nx1 list        
 
@@ -79,7 +78,7 @@ public class LinearRegressionModule implements MachineLearningModule{
      * @param length 
      * @return indexSet
      */
-    public Instances createIndexList(int start, int length){
+    private Instances createIndexList(int start, int length){
         ArrayList<Attribute> atts = new ArrayList<Attribute>(1);
         Attribute index = new Attribute("INDEX");
         Attribute values = new Attribute("VALUE");    
