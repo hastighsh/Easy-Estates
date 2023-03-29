@@ -7,6 +7,9 @@ import java.util.*;
 
 import backend.DataBase;
 import backend.MySql;
+import machineLearning.LinearRegressionModule;
+import machineLearning.MachineLearningAdapter;
+import machineLearning.MachineLearningModule;
 import org.apache.commons.math3.stat.inference.TTest;
 
 public class Logic implements LogicIF{
@@ -175,9 +178,10 @@ public class Logic implements LogicIF{
 		return ts1Existence && ts2Existence;		
 	}
 	
-	public DataTable forecast(int forecastMonths, TimeSeries ts) {	// for use case 5 	NOT REQUIRED FOR 1ST DELIVERABLE
-		
-		return new DataTable();
+	public ArrayList<Double> forecast(ArrayList<Double> data, int month) {	// for use case 5 	NOT REQUIRED FOR 1ST DELIVERABLE
+		LinearRegressionModule module = new LinearRegressionModule();
+		MachineLearningAdapter adapter = new MachineLearningAdapter(module);
+		return adapter.predict(data,month);
 	}
 	
 }

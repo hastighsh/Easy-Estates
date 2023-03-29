@@ -1,4 +1,4 @@
-package UI.UI;
+package UI;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -33,9 +33,7 @@ import org.jfree.chart.renderer.xy.XYSplineRenderer;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.util.TableOrder;
 import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
-import org.jfree.data.time.Year;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
