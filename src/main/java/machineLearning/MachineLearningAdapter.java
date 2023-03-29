@@ -1,6 +1,7 @@
 package machineLearning;
 
 import java.util.ArrayList;
+import java.util.EmptyStackException;
 
 import weka.core.Attribute;
 import weka.core.DenseInstance;
@@ -13,7 +14,10 @@ public class MachineLearningAdapter {
      * 
      * @param module
      */
-    public MachineLearningAdapter(MachineLearningModule module) {
+    public MachineLearningAdapter(MachineLearningModule module){
+        if (module == null) {
+            throw new NullPointerException("\nNo module detected.");
+        }
         this.module = module;
     }
 
@@ -26,6 +30,17 @@ public class MachineLearningAdapter {
      * @return list of predicted indices
      */
     public ArrayList<Double> predict(ArrayList<Double> data, int months){
+        //exceptions
+        if (data==null) {
+            throw new NullPointerException();
+        }
+        if (data.isEmpty()) {
+            throw new EmptyStackException();
+        }
+        if (months<=0) {
+            throw new IndexOutOfBoundsException("Months not positive");
+        }
+
         Instances newData = convertDataIn(data);
         Instances prediction = module.prediction(newData, months);        
         return convertDataOut(prediction);
@@ -38,6 +53,15 @@ public class MachineLearningAdapter {
      * @return dataset - instances with INDEX and VALUE as attributes
      */
     private Instances convertDataIn(ArrayList<Double> dataIn){
+
+        //exceptions
+        if (dataIn==null) {
+            throw new NullPointerException();
+        }
+        if (dataIn.isEmpty()) {
+            throw new EmptyStackException();
+        }
+
         //attributes for instances
         ArrayList<Attribute> atts = new ArrayList<Attribute>(2);
         Attribute index = new Attribute("INDEX");
@@ -67,6 +91,12 @@ public class MachineLearningAdapter {
      * @return arraylist
      */
     private ArrayList<Double> convertDataOut(Instances dataOut){
+
+        //exception
+        if (dataOut==null) {
+            throw new NullPointerException("Empty Instances type for output");
+        }
+
         ArrayList<Double> values = new ArrayList<Double>();
         for (int i = 0; i < dataOut.numInstances(); i++) {
             Instance data = dataOut.instance(i);
