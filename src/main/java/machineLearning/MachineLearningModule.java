@@ -2,6 +2,13 @@ package machineLearning;
 
 import weka.core.Instances;
 
+/**
+ * Machine Learning Module interface for the ML technique implementations
+ * @author James Prime
+ * @author @JPrime1
+ * @version 1.0
+ */
+
 public interface MachineLearningModule {
     /**
      * Creates a prediction of n months to the future
