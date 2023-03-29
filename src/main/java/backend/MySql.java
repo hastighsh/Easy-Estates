@@ -17,7 +17,7 @@ public class MySql implements DataBase {
 
     public MySql() throws SQLException  {
         city = "Canada";
-        time = "1981-01";
+        time = "1981";
         execute();
 
         }
@@ -52,7 +52,9 @@ public class MySql implements DataBase {
     }
 
     private String queryInfo(){
-        return "SELECT GEO,REF_DATE,VALUE FROM EECS3311.18100205 WHERE GEO = '" + city +"' AND REF_DATE = '" + time + "'";
+        return  "SELECT GEO,REF_DATE,VALUE " +
+                "FROM EECS3311.18100205 " +
+                "WHERE GEO = '" + city +"' AND REF_DATE LIKE '" + time + "%'";
     }
 
     public void setCity(String city){

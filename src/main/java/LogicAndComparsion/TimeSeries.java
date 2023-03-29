@@ -58,22 +58,9 @@ public class TimeSeries {
 	}
 	public boolean increasement(){
 		int year = 0;
-		int month = 0;
 		year = Integer.parseInt(tempStart.substring(0,4));
-		month = Integer.parseInt((tempStart.substring(tempStart.length()-2)));
-		month++;
-
-		if(month<10){
-			tempStart = year + "-0" +month;
-		}
-		else if(month>12){
-			month = 1;
-			year++;
-			tempStart = year + "-0" + month;
-		}
-		else{
-			tempStart = year + "-" +month;
-		}
+		year++;
+		tempStart = year+"";
 		return tempStart.equals(tempEnd);
 
 	}
