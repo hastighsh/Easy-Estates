@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.basic.BasicBorders;
 
 import LogicAndComparsion.Location;
 import LogicAndComparsion.Logic;
@@ -78,18 +81,20 @@ public class MainUI extends JFrame {
     private static final long serialVersionUID = 1L;
 
     private static MainUI instance;
-    private static ArrayList<String> locations = new ArrayList();
-    private static ArrayList<String> times = new ArrayList();
+    private static ArrayList<String> locations = new ArrayList<>();
+    private static ArrayList<String> visuals = new ArrayList<>();
+    private static ArrayList<String> times = new ArrayList<>();
     private  ArrayList<Node> result = new ArrayList<>();
     private static int counter = 0;
     JComboBox<String> fromList, toList;
     JPanel west;
     JFreeChart chart,barChart;
-    ChartPanel chartPanel,chartTimeSerisePanel,barChartPanel, scatterTimeSeriesPanel;;
+    ChartPanel chartPanel, chartTimeSeriesPanel,barChartPanel, scatterTimeSeriesPanel;;
     JScrollPane outputScrollPane;
     Logic log = new Logic();
     String startTime= "";
     String endTime = "";
+    int visualThreshold = 0;
     int flag = 0;
     double resultForIncrse;
 
@@ -105,7 +110,19 @@ public class MainUI extends JFrame {
         super("Easy Estates");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        // Set top bar
+        // Set top bar ---------------->
+
+        // radio buttons for table switching
+        JRadioButton rawDataButton = new JRadioButton("Raw Data");
+        rawDataButton.setSelected(true);
+        rawDataButton.setActionCommand("Raw Data Table");
+        JRadioButton descriptiveDataButton = new JRadioButton("Descriptive Data");
+
+        ButtonGroup dataTableButtons = new ButtonGroup();
+        dataTableButtons.add(rawDataButton);
+        dataTableButtons.add(descriptiveDataButton);
+
+        // location drop-down menu
         JLabel chooseCountryLabel = new JLabel("Choose a Location: "); // setting a text
         Vector<String> countriesNames = new Vector<String>(); // setting a drop-down menu vector
         countriesNames.add("Atlantic Region"); // adding instances to the menu
@@ -164,54 +181,71 @@ public class MainUI extends JFrame {
 
         addLocation.addActionListener(e -> {
             if(e.getSource() == addLocation){
-                if(!locations.contains((String)countriesList.getSelectedItem())){
+                if(locations.contains((String)countriesList.getSelectedItem())){
+
+                    String boxName = "Location List";
+                    String dialog = "This location has already been selected. Please add another location.";
+                    makeDialogBox(dialog,boxName);
+
+                } else if(countriesNames.size() == locations.size()){
+
+                    String boxName = "Location List";
+                    String dialog = "No more location to add.";
+                    makeDialogBox(dialog,boxName);
+
+                } else {
+
                     locations.add((String)countriesList.getSelectedItem());
                     counter++;
-//                    west.remove(chartTimeSerisePanel);
-//                    west.remove(chartPanel);
-//                    west.remove(outputScrollPane);
-//                    createReport(west);
-//                    createLine(west);
-//                    createTimeSeries(west);
+
+                    //update the view with the new data
                     updateView(west);
                     SwingUtilities.updateComponentTreeUI(west);
                 }
-
             }
-
         });
         System.out.println(locations);
 
 
         JButton removeLocation = new JButton("-");
 
-        JLabel from = new JLabel("From");
-        JLabel to = new JLabel("To");
-
         removeLocation.addActionListener(e->{
             if(e.getSource()==removeLocation){
-                if(locations.contains((String)countriesList.getSelectedItem())){
-                    if(result.size()!=0){
-                        for(Node node: result){
-                            if(node.getLocation().equals(countriesList.getSelectedItem())){
-                                result.remove(node);
-                                break;
-                            }
+
+                if (locations.size() == 0){ // prompting the user to add locations if the location list is empty
+
+                    String boxName = "Location List";
+                    String dialog = "No location has been added to the list; please add a location.";
+                    makeDialogBox(dialog,boxName);
+
+                } else if (locations.contains((String)countriesList.getSelectedItem())){
+
+                    for(Node node: result){
+                        if(node.getLocation().equals(countriesList.getSelectedItem())){
+                            result.remove(node);
+                            break;
                         }
                     }
+
                     locations.remove((String)countriesList.getSelectedItem());
                     counter--;
-//                    west.remove(chartTimeSerisePanel);
-//                    west.remove(chartPanel);
-//                    west.remove(outputScrollPane);
-//                    createReport(west);
-//                    createLine(west);
-//                    createTimeSeries(west);
+
+                    //update the view with the new data
                     updateView(west);
                     SwingUtilities.updateComponentTreeUI(west);
+
+                } else {
+
+                    String boxName = "Location List";
+                    String dialog = "Select a location that exists in the list.";
+                    makeDialogBox(dialog,boxName);
+
                 }
             }
         });
+
+        JLabel from = new JLabel("From");
+        JLabel to = new JLabel("To");
 
         Vector<String> years = new Vector<String>();
         for (int i = 2022; i >= 1981; i--) {
@@ -259,12 +293,7 @@ public class MainUI extends JFrame {
                                     result.add(new Node(location.getName(),get));
                                 }
                             }
-//                            west.remove(chartTimeSerisePanel);
-//                            west.remove(chartPanel);
-//                            west.remove(outputScrollPane);
-//                            createReport(west);
-//                            createLine(west);
-//                            createTimeSeries(west);
+                            // update the view with the new data
                             updateView(west);
                             SwingUtilities.updateComponentTreeUI(west);
                         } catch (SQLException ex) {
@@ -278,6 +307,8 @@ public class MainUI extends JFrame {
         });
 
         JPanel north = new JPanel(); //making a panel (top)
+        north.add(rawDataButton);
+        north.add(descriptiveDataButton);
         north.add(test1);
         north.add(chooseCountryLabel);
         north.add(countriesList);
@@ -290,7 +321,7 @@ public class MainUI extends JFrame {
         north.add(loadData);
 
         // Set bottom bar
-        JButton recalculate = new JButton("Recalculate");
+        JButton recalculate = new JButton("Calculate");
 
         JLabel viewsLabel = new JLabel("Available Views: ");
 
@@ -302,21 +333,19 @@ public class MainUI extends JFrame {
         viewsNames.add("Bar Chart");
         viewsNames.add("Scatter Chart");
 
-
         JComboBox<String> viewsList = new JComboBox<String>(viewsNames);
         JButton addView = new JButton("+");
         JButton removeView = new JButton("-");
 
+
+        // forecasting drop-down menu, button, ...
         JLabel methodLabel = new JLabel("        Choose Forecasting method: ");
 
         Vector<String> methodsNames = new Vector<String>();
-        methodsNames.add("Method #1");
-//        methodsNames.add("Mortality vs Expenses");
-//        methodsNames.add("Mortality vs Expenses & Hospital Beds");
-//        methodsNames.add("Mortality vs GDP");
-//        methodsNames.add("Unemployment vs GDP");
-//        methodsNames.add("Unemployment");
+        methodsNames.add("Linear Regression Module");
 
+
+        // comparing drop-down menu, button, ...
         JButton statsBtn = new JButton("Compare by T-test");
         statsBtn.addActionListener(e->{
             Location location = new Location("Hamilton, Ontario");
@@ -342,6 +371,7 @@ public class MainUI extends JFrame {
 
         JComboBox<String> methodsList = new JComboBox<String>(methodsNames);
 
+        // making the bottom pane
         JPanel south = new JPanel();
         south.add(viewsLabel);
         south.add(viewsList);
@@ -593,7 +623,7 @@ public class MainUI extends JFrame {
         plot.mapDatasetToRangeAxis(0, 0);// 1st dataset to 1st y-axis
         plot.mapDatasetToRangeAxis(1, 1); // 2nd dataset to 2nd y-axis
 
-        barChart = new JFreeChart("Mortality vs Expenses & Hospital Beds",
+        barChart = new JFreeChart("NHPI of Cities Over Time",
                 new Font("Serif", java.awt.Font.BOLD, 18), plot, true);
 
         // Different way to create bar chart
@@ -715,11 +745,11 @@ public class MainUI extends JFrame {
 //        chartPanel.setBackground(Color.white);
 //        west.add(chartPanel);
 
-        chartTimeSerisePanel = new ChartPanel(chart);
-        chartTimeSerisePanel.setPreferredSize(new Dimension(400, 300));
-        chartTimeSerisePanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        chartTimeSerisePanel.setBackground(Color.white);
-        west.add(chartTimeSerisePanel);
+        chartTimeSeriesPanel = new ChartPanel(chart);
+        chartTimeSeriesPanel.setPreferredSize(new Dimension(400, 300));
+        chartTimeSeriesPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        chartTimeSeriesPanel.setBackground(Color.white);
+        west.add(chartTimeSeriesPanel);
 
     }
 
@@ -811,13 +841,24 @@ public class MainUI extends JFrame {
         west.remove(barChartPanel);
         west.remove(chartPanel);
         west.remove(outputScrollPane);
-        west.remove(chartTimeSerisePanel);
+        west.remove(chartTimeSeriesPanel);
         west.remove(scatterTimeSeriesPanel);
         createReport(west);
         createLine(west);
         createTimeSeries(west);
         createScatter(west);
         createBar(west);
+    }
+
+    public void makeDialogBox(String dialog, String boxName){
+        JFrame locationFrame = new JFrame(boxName);
+        locationFrame.setDefaultCloseOperation(HIDE_ON_CLOSE);
+        JLabel message = new JLabel(dialog, SwingConstants.CENTER);
+        locationFrame.getContentPane().add(message, BorderLayout.CENTER);
+        locationFrame.pack();
+        locationFrame.setSize(500, 150);
+        locationFrame.setLocationRelativeTo(null);
+        locationFrame.setVisible(true);
     }
 
 

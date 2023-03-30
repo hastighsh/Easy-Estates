@@ -78,7 +78,7 @@ public class LinearRegressionModule implements MachineLearningModule{
      * @param length 
      * @return indexSet
      */
-    private Instances createIndexList(int start, int length){
+    public Instances createIndexList(int start, int length){
         ArrayList<Attribute> atts = new ArrayList<Attribute>(1);
         Attribute index = new Attribute("INDEX");
         Attribute values = new Attribute("VALUE");    
