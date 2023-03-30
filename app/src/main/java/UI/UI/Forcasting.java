@@ -1,5 +1,10 @@
 package UI.UI;
 
-public class Forcasting {
+import java.util.ArrayList;
 
+public class Forcasting {
+    ArrayList<Double>
+    public Forcasting(ArrayList<Double> data,int month){
+
+    }
 }
