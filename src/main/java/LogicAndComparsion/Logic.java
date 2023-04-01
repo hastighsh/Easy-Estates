@@ -195,7 +195,7 @@ public class Logic implements LogicIF{
 		return ts1Existence && ts2Existence;		
 	}
 	
-	public ArrayList<Double> forecast(ArrayList<Double> data, int months, int algorithm) {	// for use case 5 	
+	public ArrayList<Double> forecast(ArrayList<Double> data, int months) {	// for use case 5
 		
 		MachineLearningModule module;
 		
