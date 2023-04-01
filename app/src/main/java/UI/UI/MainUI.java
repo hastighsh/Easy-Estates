@@ -1,4 +1,4 @@
-package UI;
+package UI.UI;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -11,9 +11,6 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.basic.BasicBorders;
 
 import LogicAndComparsion.Location;
 import LogicAndComparsion.Logic;
