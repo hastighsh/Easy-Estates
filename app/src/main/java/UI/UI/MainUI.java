@@ -1,16 +1,14 @@
 package UI.UI;
 
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridLayout;
+import java.awt.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.basic.BasicBorders;
 
 import LogicAndComparsion.Location;
 import LogicAndComparsion.Logic;
@@ -86,7 +84,7 @@ public class MainUI extends JFrame {
     JComboBox<String> fromList, toList;
     JPanel west;
     JFreeChart chart,barChart;
-    ChartPanel chartPanel, chartTimeSeriesPanel,barChartPanel, scatterTimeSeriesPanel;;
+    ChartPanel chartPanel, chartTimeSeriesPanel,barChartPanel, scatterTimeSeriesPanel;
     JScrollPane outputScrollPane;
     Logic log = new Logic();
     String startTime= "";
@@ -182,13 +180,13 @@ public class MainUI extends JFrame {
 
                     String boxName = "Location List";
                     String dialog = "This location has already been selected. Please add another location.";
-                    makeDialogBox(dialog,boxName);
+                    makeDialogBox(dialog);
 
                 } else if(countriesNames.size() == locations.size()){
 
                     String boxName = "Location List";
                     String dialog = "No more location to add.";
-                    makeDialogBox(dialog,boxName);
+                    makeDialogBox(dialog);
 
                 } else {
 
@@ -211,9 +209,8 @@ public class MainUI extends JFrame {
 
                 if (locations.size() == 0){ // prompting the user to add locations if the location list is empty
 
-                    String boxName = "Location List";
                     String dialog = "No location has been added to the list; please add a location.";
-                    makeDialogBox(dialog,boxName);
+                    makeDialogBox(dialog);
 
                 } else if (locations.contains((String)countriesList.getSelectedItem())){
 
@@ -233,9 +230,8 @@ public class MainUI extends JFrame {
 
                 } else {
 
-                    String boxName = "Location List";
                     String dialog = "Select a location that exists in the list.";
-                    makeDialogBox(dialog,boxName);
+                    makeDialogBox(dialog);
 
                 }
             }
@@ -320,6 +316,53 @@ public class MainUI extends JFrame {
         // Set bottom bar
         JButton recalculate = new JButton("Calculate");
 
+        recalculate.addActionListener(e->{
+            JDialog optionPane = new JDialog(this);
+            optionPane.setLocationRelativeTo(null);
+            JComboBox<String> item = new JComboBox<>();
+            JTextField month = new JTextField();
+            JButton button = new JButton("submit");
+            optionPane.setPreferredSize(new Dimension(400,100));
+            for(Node node:result){
+                item.addItem(node.getLocation());
+            }
+            item.setPreferredSize(new Dimension(120,20));
+            month.setPreferredSize(new Dimension(80,20));
+            JLabel label1 = new JLabel("City: ");
+            JLabel label2 = new JLabel("Month: ");
+            optionPane.add(label1);
+            optionPane.add(item);
+            optionPane.add(label2);
+            optionPane.add(month);
+            optionPane.add(button);
+            optionPane.setLayout(new FlowLayout());
+            optionPane.pack();
+            optionPane.setVisible(true);
+            button.addActionListener(f->{
+                String city = "";
+                optionPane.dispose();
+                int month1 = 0;
+                if(!month.getText().equals("")){
+                    month1 = Integer.parseInt(month.getText());
+                }
+                ArrayList<Double> temp = new ArrayList<>();
+                for(Node node:result){
+                    if(node.getLocation().equals(item.getSelectedItem())){
+                        temp = merge(node);
+                        city = node.getLocation();
+                    }
+                }
+                if(month1<=0){
+                    makeDialogBox("Month must be positive");
+                }
+                else{
+                    Logic logic = new Logic();
+                    forForecasting(logic.forecast(temp,month1),city);
+                }
+            });
+
+        });
+
         JLabel viewsLabel = new JLabel("Available Views: ");
 
 
@@ -332,7 +375,36 @@ public class MainUI extends JFrame {
 
         JComboBox<String> viewsList = new JComboBox<String>(viewsNames);
         JButton addView = new JButton("+");
+        addView.addActionListener(e->{
+            if(checkThershold()){
+                if(!visuals.contains((String)viewsList.getSelectedItem())){
+                    visuals.add((String)viewsList.getSelectedItem());
+                    updateView(west);
+                    SwingUtilities.updateComponentTreeUI(west);
+                }
+                else{
+                    makeDialogBox("Your choice already executed");
+                }
+            }
+           else{
+                makeDialogBox("Your charts selection out of bound 3");
+            }
+        });
+
         JButton removeView = new JButton("-");
+        removeView.addActionListener(e->{
+            if(visuals.size()<=0){
+                makeDialogBox("Chart is empty");
+            }
+            else if(!visuals.contains((String)viewsList.getSelectedItem())){
+                makeDialogBox("Your choice does not exist");
+            }
+            else{
+                visuals.remove((String)viewsList.getSelectedItem());
+                updateView(west);
+                SwingUtilities.updateComponentTreeUI(west);
+            }
+        });
 
 
         // forecasting drop-down menu, button, ...
@@ -346,10 +418,10 @@ public class MainUI extends JFrame {
         JButton statsBtn = new JButton("Compare by T-test");
         statsBtn.addActionListener(e->{
             Location location = new Location("Hamilton, Ontario");
-            Time start1 = new Time ("1981-02");		// user gives this (comes as parameter from UI call, logic.AddTimeSeries(place, startTime, endTime);
-            Time end1 = new Time ("1998-02");
-            Time start2 = new Time ("1991-02");
-            Time end2 = new Time ("1999-11");
+            Time start1 = new Time ("1981");		// user gives this (comes as parameter from UI call, logic.AddTimeSeries(place, startTime, endTime);
+            Time end1 = new Time ("1998");
+            Time start2 = new Time ("1991");
+            Time end2 = new Time ("1999");
             try{
                 ArrayList<Double> data1 = log.fetchData(location,start1,end1);//  fetchData(place, startTime, endTime) returns data1, data2
                 System.out.println(data1);
@@ -398,7 +470,6 @@ public class MainUI extends JFrame {
         createLine(west);
         createTimeSeries(west); // Hasti
         createBar(west); // Lee
-//        createPie(west); //Lee
         createScatter(west); //
 
     }
@@ -546,7 +617,6 @@ public class MainUI extends JFrame {
         scatterTimeSeriesPanel.setPreferredSize(new Dimension(400, 300));
         scatterTimeSeriesPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         scatterTimeSeriesPanel.setBackground(Color.white);
-        west.add(scatterTimeSeriesPanel);
     }
 
     private void createPie(JPanel west) {
@@ -572,7 +642,6 @@ public class MainUI extends JFrame {
         chartPanel.setPreferredSize(new Dimension(400, 300));
         chartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         chartPanel.setBackground(Color.white);
-        west.add(chartPanel);
     }
 
     private void createBar(JPanel west) {
@@ -638,7 +707,6 @@ public class MainUI extends JFrame {
         barChartPanel.setPreferredSize(new Dimension(400, 300));
         barChartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         barChartPanel.setBackground(Color.white);
-        west.add(barChartPanel);
     }
 
     private void createLine(JPanel west) {
@@ -671,7 +739,6 @@ public class MainUI extends JFrame {
         chartPanel.setPreferredSize(new Dimension(400, 300));
         chartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         chartPanel.setBackground(Color.white);
-        west.add(chartPanel);
 
     }
 
@@ -746,7 +813,6 @@ public class MainUI extends JFrame {
         chartTimeSeriesPanel.setPreferredSize(new Dimension(400, 300));
         chartTimeSeriesPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         chartTimeSeriesPanel.setBackground(Color.white);
-        west.add(chartTimeSeriesPanel);
 
     }
 
@@ -835,20 +901,61 @@ public class MainUI extends JFrame {
     }
 
     public void updateView(JPanel west){
-        west.remove(barChartPanel);
-        west.remove(chartPanel);
-        west.remove(outputScrollPane);
-        west.remove(chartTimeSeriesPanel);
-        west.remove(scatterTimeSeriesPanel);
+
+        west.removeAll();
         createReport(west);
-        createLine(west);
-        createTimeSeries(west);
-        createScatter(west);
-        createBar(west);
+        for(String panel:visuals){
+            if(panel.equals("Line Chart")){
+                createLine(west);
+                west.add(chartPanel);
+            }
+            else if(panel.equals("Time Series Chart")){
+                createTimeSeries(west);
+                west.add(chartTimeSeriesPanel);
+            }
+            else if(panel.equals("Bar Chart")){
+                createBar(west);
+                west.add(barChartPanel);
+            }
+            else if(panel.equals("Scatter Chart")){
+                createScatter(west);
+                west.add(scatterTimeSeriesPanel);
+            }
+        }
+
+    }
+    private void forForecasting(ArrayList<Double> data,String city){
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        int end = Integer.parseInt(endTime);
+        int i = 1;
+        for(double dataTemp : data){
+            if(i >=13){
+                i = 1;
+                end++;
+            }
+            dataset.addValue(dataTemp,city,end+"-"+i);
+            i++;
+        }
+        JFreeChart barchart = ChartFactory.createBarChart(
+                "Forecasting",
+                "Time",
+                "NHPI",
+                dataset);
+        ChartPanel bar = new ChartPanel(barchart);
+        bar.setPreferredSize(new Dimension(450,325));
+        bar.setBackground(Color.WHITE);
+        bar.setVisible(true);
+        JScrollPane bars = new JScrollPane(bar);
+        bars.setPreferredSize(new Dimension(400,300));
+        bars.setVisible(true);
+        west.add(bars);
+        SwingUtilities.updateComponentTreeUI(west);
+
     }
 
-    public void makeDialogBox(String dialog, String boxName){
-        JFrame locationFrame = new JFrame(boxName);
+
+    public void makeDialogBox(String dialog){
+        JDialog locationFrame = new JDialog(this);
         locationFrame.setDefaultCloseOperation(HIDE_ON_CLOSE);
         JLabel message = new JLabel(dialog, SwingConstants.CENTER);
         locationFrame.getContentPane().add(message, BorderLayout.CENTER);
@@ -857,6 +964,15 @@ public class MainUI extends JFrame {
         locationFrame.setLocationRelativeTo(null);
         locationFrame.setVisible(true);
     }
+    private boolean checkThershold(){
+        if(visuals.size()>2){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+
 
 
     public static void main(String[] args) {

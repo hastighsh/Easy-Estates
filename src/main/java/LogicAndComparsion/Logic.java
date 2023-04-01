@@ -11,6 +11,8 @@ import machineLearning.LinearRegressionModule;
 import machineLearning.MachineLearningAdapter;
 import machineLearning.MachineLearningModule;
 import org.apache.commons.math3.stat.inference.TTest;
+import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
+
 
 public class Logic implements LogicIF{
 	
@@ -68,8 +70,23 @@ public class Logic implements LogicIF{
 		return data;
 	
 	}
+	// new stuff2:
+	// * IF YOU WANT SUMMARY OF fetchData(), use getSummary(fetchData(location, startTime, endTime));
+
+	public SummaryStatistics getSummary(ArrayList<Double> rawData) {
+		SummaryStatistics summaryData = new SummaryStatistics();
+		
+		for(int i = 0; i < rawData.size(); i++) {
+			
+			summaryData.addValue(rawData.get(i));
+		}
+		
+		return summaryData;
+		}
 	
-	public DataTable dataFrame(boolean summaryTable){	// called by UI using the toggle button   // for use case 2		// JAYANT IS ON THIS. WILL FINISH SOON
+	
+// Jayant thinks this method is useless, who's using this? Infact, the class DataTable seems useless to Jayant
+	public DataTable dataFrame(boolean summaryTable){	// called by UI using the toggle button   // for use case 2		
 		
 		DataTable data = new DataTable();
 		
@@ -178,10 +195,21 @@ public class Logic implements LogicIF{
 		return ts1Existence && ts2Existence;		
 	}
 	
-	public ArrayList<Double> forecast(ArrayList<Double> data, int month) {	// for use case 5 	NOT REQUIRED FOR 1ST DELIVERABLE
-		LinearRegressionModule module = new LinearRegressionModule();
+	public ArrayList<Double> forecast(ArrayList<Double> data, int months, int algorithm) {	// for use case 5 	
+		
+		MachineLearningModule module;
+		
+//		if(algorithm == 1) 			
+			module = new LinearRegressionModule();	
+		
+//		else if(algorithm == 2)
+//			module = new SMORegressionModule();
+		
+		//else throw exception
+		
 		MachineLearningAdapter adapter = new MachineLearningAdapter(module);
-		return adapter.predict(data,month);
+		
+		return adapter.predict(data,months);
 	}
 	
 }
