@@ -942,13 +942,10 @@ public class MainUI extends JFrame {
                 "NHPI",
                 dataset);
         ChartPanel bar = new ChartPanel(barchart);
-        bar.setPreferredSize(new Dimension(450,325));
+        bar.setPreferredSize(new Dimension(400,300));
         bar.setBackground(Color.WHITE);
         bar.setVisible(true);
-        JScrollPane bars = new JScrollPane(bar);
-        bars.setPreferredSize(new Dimension(400,300));
-        bars.setVisible(true);
-        west.add(bars);
+        west.add(bar);
         SwingUtilities.updateComponentTreeUI(west);
 
     }
