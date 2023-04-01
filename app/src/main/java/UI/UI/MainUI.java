@@ -1,11 +1,6 @@
 package UI.UI;
 
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridLayout;
+import java.awt.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Vector;
@@ -235,7 +230,6 @@ public class MainUI extends JFrame {
 
                 } else {
 
-                    String boxName = "Location List";
                     String dialog = "Select a location that exists in the list.";
                     makeDialogBox(dialog);
 
@@ -321,6 +315,53 @@ public class MainUI extends JFrame {
 
         // Set bottom bar
         JButton recalculate = new JButton("Calculate");
+
+        recalculate.addActionListener(e->{
+            JDialog optionPane = new JDialog(this);
+            optionPane.setLocationRelativeTo(null);
+            JComboBox<String> item = new JComboBox<>();
+            JTextField month = new JTextField();
+            JButton button = new JButton("submit");
+            optionPane.setPreferredSize(new Dimension(400,100));
+            for(Node node:result){
+                item.addItem(node.getLocation());
+            }
+            item.setPreferredSize(new Dimension(120,20));
+            month.setPreferredSize(new Dimension(80,20));
+            JLabel label1 = new JLabel("City: ");
+            JLabel label2 = new JLabel("Month: ");
+            optionPane.add(label1);
+            optionPane.add(item);
+            optionPane.add(label2);
+            optionPane.add(month);
+            optionPane.add(button);
+            optionPane.setLayout(new FlowLayout());
+            optionPane.pack();
+            optionPane.setVisible(true);
+            button.addActionListener(f->{
+                String city = "";
+                optionPane.dispose();
+                int month1 = 0;
+                if(!month.getText().equals("")){
+                    month1 = Integer.parseInt(month.getText());
+                }
+                ArrayList<Double> temp = new ArrayList<>();
+                for(Node node:result){
+                    if(node.getLocation().equals(item.getSelectedItem())){
+                        temp = merge(node);
+                        city = node.getLocation();
+                    }
+                }
+                if(month1<=0){
+                    makeDialogBox("Month must be positive");
+                }
+                else{
+                    Logic logic = new Logic();
+                    forForecasting(logic.forecast(temp,month1),city);
+                }
+            });
+
+        });
 
         JLabel viewsLabel = new JLabel("Available Views: ");
 
@@ -883,6 +924,35 @@ public class MainUI extends JFrame {
         }
 
     }
+    private void forForecasting(ArrayList<Double> data,String city){
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        int end = Integer.parseInt(endTime);
+        int i = 1;
+        for(double dataTemp : data){
+            if(i >=13){
+                i = 1;
+                end++;
+            }
+            dataset.addValue(dataTemp,city,end+"-"+i);
+            i++;
+        }
+        JFreeChart barchart = ChartFactory.createBarChart(
+                "Forecasting",
+                "Time",
+                "NHPI",
+                dataset);
+        ChartPanel bar = new ChartPanel(barchart);
+        bar.setPreferredSize(new Dimension(450,325));
+        bar.setBackground(Color.WHITE);
+        bar.setVisible(true);
+        JScrollPane bars = new JScrollPane(bar);
+        bars.setPreferredSize(new Dimension(400,300));
+        bars.setVisible(true);
+        west.add(bars);
+        SwingUtilities.updateComponentTreeUI(west);
+
+    }
+
 
     public void makeDialogBox(String dialog){
         JDialog locationFrame = new JDialog(this);
