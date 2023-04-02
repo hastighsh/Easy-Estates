@@ -82,7 +82,7 @@ public class Logic implements LogicIF{
 		}
 		
 		return summaryData;
-		}
+	}
 	
 	
 // Jayant thinks this method is useless, who's using this? Infact, the class DataTable seems useless to Jayant

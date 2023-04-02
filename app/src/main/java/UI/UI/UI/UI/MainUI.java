@@ -6,9 +6,6 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.basic.BasicBorders;
 
 import LogicAndComparsion.Location;
 import LogicAndComparsion.Logic;
@@ -82,9 +79,10 @@ public class MainUI extends JFrame {
     private  ArrayList<Node> result = new ArrayList<>();
     private static int counter = 0;
     JComboBox<String> fromList, toList;
-    JPanel west;
+    JPanel west, east;
     JFreeChart chart,barChart;
     ChartPanel chartPanel, chartTimeSeriesPanel,barChartPanel, scatterTimeSeriesPanel;
+    JTextArea report;
     JScrollPane outputScrollPane;
     Logic log = new Logic();
     String startTime= "";
@@ -116,6 +114,24 @@ public class MainUI extends JFrame {
         ButtonGroup dataTableButtons = new ButtonGroup();
         dataTableButtons.add(rawDataButton);
         dataTableButtons.add(descriptiveDataButton);
+
+        rawDataButton.addActionListener(e -> {
+            if(rawDataButton.isSelected()){
+                west.remove(outputScrollPane);
+                createReport(west);
+                SwingUtilities.updateComponentTreeUI(west);
+                System.out.println("naaaarrrr");
+            }
+        });
+
+        descriptiveDataButton.addActionListener(e -> {
+            if(descriptiveDataButton.isSelected()){
+                west.remove(outputScrollPane);
+                createDescriptiveReport(west);
+                SwingUtilities.updateComponentTreeUI(west);
+                System.out.println("hello");
+            }
+        });
 
         // location drop-down menu
         JLabel chooseCountryLabel = new JLabel("Choose a Location: "); // setting a text
@@ -376,7 +392,7 @@ public class MainUI extends JFrame {
         JComboBox<String> viewsList = new JComboBox<String>(viewsNames);
         JButton addView = new JButton("+");
         addView.addActionListener(e->{
-            if(checkThershold()){
+            if(checkThreshold()){
                 if(!visuals.contains((String)viewsList.getSelectedItem())){
                     visuals.add((String)viewsList.getSelectedItem());
                     updateView(west);
@@ -387,7 +403,7 @@ public class MainUI extends JFrame {
                 }
             }
            else{
-                makeDialogBox("Your charts selection out of bound 3");
+                makeDialogBox("You can only view up to 3 visualization");
             }
         });
 
@@ -452,8 +468,8 @@ public class MainUI extends JFrame {
         south.add(recalculate);
         south.add(statsBtn);
 
-        JPanel east = new JPanel();
-
+        east = new JPanel();
+        east.setLayout(new GridLayout(2, 0));
         // Set charts region
         west = new JPanel();
         west.setLayout(new GridLayout(2, 0));
@@ -475,7 +491,7 @@ public class MainUI extends JFrame {
     }
 
     private void createReport(JPanel west) {
-        JTextArea report = new JTextArea();
+        report = new JTextArea();
         report.setEditable(false);
         report.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         report.setBackground(Color.white);
@@ -515,6 +531,36 @@ public class MainUI extends JFrame {
 
 
         // =========== putting the radio buttons for switching between raw data and the stats
+        report.setText(reportMessage);
+        outputScrollPane = new JScrollPane(report);
+        outputScrollPane.setPreferredSize(new Dimension(400, 300));
+        west.add(outputScrollPane);
+    }
+
+    private void createDescriptiveReport(JPanel west){
+        report = new JTextArea();
+        report.setEditable(false);
+        report.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        report.setBackground(Color.white);
+
+
+        int i = 0;
+        String reportMessage = "City NHPI Over Time Descriptive Data\n" + "==============================\n";
+        if (locations.size() > 0) {
+//                for (Node node : result) {
+                String dataInfo = "The descriptive data for the locations: \n";
+                reportMessage = reportMessage.concat(dataInfo);
+            for(int j = 0; j < result.size(); j++) {
+//                dataInfo =  result.get(j).getLocation() + "\n" + "\tStart Date _ End Date: " + startTime + " / " + endTime + "\n"
+//                        + "\tNHPI: " + getAverage(result.get(j)) + "\n";
+                dataInfo = "(" + locations.get(i) + ")\n";
+                reportMessage = reportMessage.concat(dataInfo);
+                i++;
+            }
+        }
+
+
+
         report.setText(reportMessage);
         outputScrollPane = new JScrollPane(report);
         outputScrollPane.setPreferredSize(new Dimension(400, 300));
@@ -859,6 +905,7 @@ public class MainUI extends JFrame {
         }
         return data;
     }
+
     private ArrayList<Double> merge(Node node){
         ArrayList<Double> result = new ArrayList<>();
         double temp = 0;
@@ -869,8 +916,8 @@ public class MainUI extends JFrame {
         int endMonth = Integer.parseInt(endTime.substring(endTime.length()-2));
         int i = 0;
 
-        while((startYear*100+startMonth)!=(endYear*100+endMonth+1)&&i<node.getData().size()){
-            if(startMonth>13){
+        while((startYear*100+startMonth) != (endYear*100+endMonth+1) && i<node.getData().size()){
+            if(startMonth > 13){
                 startYear++;
                 startMonth = 1;
                 temp = temp/counter;
@@ -883,14 +930,13 @@ public class MainUI extends JFrame {
             startMonth++;
         }
         return result;
-
-
     }
+
     private double getAverage(Node node){
         ArrayList<Double> temp = merge(node);
         double temp1 = 0;
         double counter = 0;
-        for(int i = 0;i<temp.size();i++){
+        for(int i = 0; i < temp.size(); i++){
             temp1 += temp.get(i);
             counter++;
             if(i==temp.size()-1){
@@ -945,8 +991,8 @@ public class MainUI extends JFrame {
         bar.setPreferredSize(new Dimension(400,300));
         bar.setBackground(Color.WHITE);
         bar.setVisible(true);
-        west.add(bar);
-        SwingUtilities.updateComponentTreeUI(west);
+        east.add(bar);
+        SwingUtilities.updateComponentTreeUI(east);
 
     }
 
@@ -961,7 +1007,7 @@ public class MainUI extends JFrame {
         locationFrame.setLocationRelativeTo(null);
         locationFrame.setVisible(true);
     }
-    private boolean checkThershold(){
+    private boolean checkThreshold(){
         if(visuals.size()>2){
             return false;
         }
@@ -975,7 +1021,7 @@ public class MainUI extends JFrame {
     public static void main(String[] args) {
 
         JFrame frame = MainUI.getInstance();
-        frame.setSize(900, 600);
+        frame.setPreferredSize(new Dimension(1200, 600));
         frame.pack();
         frame.setVisible(true);
     }
