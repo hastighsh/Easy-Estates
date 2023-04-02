@@ -185,9 +185,6 @@ public class MainUI extends JFrame {
         JComboBox<String> countriesList = new JComboBox<>(countriesNames); // making the vector into a drop-down menu
         countriesList.setPreferredSize(new Dimension(300,30));
         countriesList.getSelectedItem();
-//        System.out.println( countriesList.getSelectedItem());
-//        UI.MainUI m = new UI.MainUI();
-//        countriesList.addActionListener(m);
         JButton addLocation = new JButton("+"); // adding button
 
 
@@ -264,8 +261,8 @@ public class MainUI extends JFrame {
         for (int i = 2022; i >= 1981; i--) {
                 years.add("" + i);
         }
-        fromList = new JComboBox<String>(years);
-        toList = new JComboBox<String>(years);
+        fromList = new JComboBox<>(years);
+        toList = new JComboBox<>(years);
 
         //load button
         JButton loadData = new JButton("Load Data");
@@ -273,6 +270,7 @@ public class MainUI extends JFrame {
         loadData.addActionListener (e->{
 
             if(e.getSource()==loadData){
+                east.removeAll();
 
                 startTime = fromList.getSelectedItem().toString();
                 endTime = toList.getSelectedItem().toString();
@@ -446,49 +444,46 @@ public class MainUI extends JFrame {
                 JDialog window = new JDialog(this);
                 window.setLocationRelativeTo(null);
                 window.setPreferredSize(new Dimension(600, 100));
-                JComboBox<String> item = new JComboBox<>();
+                JComboBox<String> city1= new JComboBox<>();
+                JComboBox<String> city2 = new JComboBox<>();
                 for (Node node : result) {
-                    item.addItem(node.getLocation());
+                    city1.addItem(node.getLocation());
+                    city2.addItem(node.getLocation());
                 }
-                JLabel fromLabel = new JLabel("From:");
-                JLabel toLabel = new JLabel("To:");
-                JLabel cityLabel = new JLabel("City");
-                JComboBox<String> compareFrom = new JComboBox<>(years);
-                JComboBox<String> compareTo = new JComboBox<>(years);
+                JLabel city1Label = new JLabel("City");
+                JLabel city2Label = new JLabel("City");
                 JButton submit = new JButton("submit");
-                window.add(cityLabel);
-                window.add(item);
-                window.add(fromLabel);
-                window.add(compareFrom);
-                window.add(toLabel);
-                window.add(compareTo);
+                window.add(city1Label);
+                window.add(city1);
+                window.add(city2Label);
+                window.add(city2);
                 window.add(submit);
                 window.setLayout(new FlowLayout());
                 window.pack();
                 window.setVisible(true);
                 submit.addActionListener(c -> {
                     try {
-                        Location location = new Location((String)item.getSelectedItem());
+                        Location location1 = new Location((String)city1.getSelectedItem());
+                        Location location2 = new Location((String)city2.getSelectedItem());
                         Time start1 = new Time((String) fromList.getSelectedItem());        // user gives this (comes as parameter from UI call, logic.AddTimeSeries(place, startTime, endTime);
                         Time end1 = new Time((String) toList.getSelectedItem());
-                        Time start2 = new Time((String) compareFrom.getSelectedItem());
-                        Time end2 = new Time((String) compareTo.getSelectedItem());
-                        if(start1.equals(start2) && end1.equals(end2)){
-                            makeDialogBox("please select two different time series");
+
+                        if(location1.getName().equals(location2.getName())){
+                            makeDialogBox("please select two different cities");
                         }
                         else{
                             window.dispose();
-                            ArrayList<Double> data1 = log.fetchData(location, start1, end1);//  fetchData(place, startTime, endTime) returns data1, data2
+                            ArrayList<Double> data1 = log.fetchData(location1, start1, end1);//  fetchData(place, startTime, endTime) returns data1, data2
                             System.out.println(data1);
-                            ArrayList<Double> data2 = log.fetchData(location, start2, end2);
+                            ArrayList<Double> data2 = log.fetchData(location2, start1, end1);
                             System.out.println(data2);
                             LogicAndComparsion.TimeSeries tseries1 = new LogicAndComparsion.TimeSeries(data1, start1, end1);
-                            LogicAndComparsion.TimeSeries tseries2 = new LogicAndComparsion.TimeSeries(data2, start2, end2);
+                            LogicAndComparsion.TimeSeries tseries2 = new LogicAndComparsion.TimeSeries(data2, start1, end1);
                             StatsComparison sc = log.compareTimeSeries(tseries1, tseries2);
                             System.out.println(sc.getPValue());
                             System.out.println(sc.getConclusion());
                             east.remove(outputScrollPane);
-                            createCompareFrame(sc.getPValue(),location.getName(),sc.getConclusion(),east);
+                            createCompareFrame(sc.getPValue(),(String) city1.getSelectedItem(),(String) city2.getSelectedItem(),sc.getConclusion(),east);
                         }
                     } catch (SQLException ex) {
                         throw new RuntimeException(ex);
@@ -538,39 +533,19 @@ public class MainUI extends JFrame {
         report.setEditable(false);
         report.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         report.setBackground(Color.white);
-//        String reportMessage, reportMessage2;
 
         //raw data table
         int i = 0;
         String reportMessage = "City NHPI Over Time Raw Data\n" + "==============================\n";
         if (locations.size() > 0) {
-//                for (Node node : result) {
             for(int j = 0;j<result.size();j++) {
                 String dataInfo = result.get(j).getLocation() + "\n" + "\tStart Date _ End Date: " + startTime + " / " + endTime + "\n"
                         + "\tNHPI: " + String.format("%.2f",getAverage(result.get(j))) + "\n";
-//                    String dataInfo = locations.get(i) + "\n";
                 reportMessage = reportMessage.concat(dataInfo);
                 i++;
             }
-//                }
-//            } else {
-//                for (Node node : result) {
-////                String dataInfo = locations.get(i) + "\n" + "\tStart Date _ End Date: " + startTime + " / " + endTime + "\n"
-////                        + "\tNHPI: 0564846" + "\n";
-//                    String dataInfo = locations.get(i) + "\n";
-//                    reportMessage = reportMessage.concat(dataInfo);
-//                    i++;
-//
-//                }
-            }
+        }
 
-        //stats table
-//        String statsMessage = "Statistic Results of City NHPI Over Time\n" + "==========================\n";
-//        for (String location: locations) {
-//            String dataInfo = locations.get(i) + "\n" + "\tStart Date _ End Date: 1991-5 / 1995-6\n"
-//                    + "\tNHPI: 0564846" + "\n";
-//            statsMessage = statsMessage.concat(dataInfo);
-//        }
 
 
         // =========== putting the radio buttons for switching between raw data and the stats
@@ -590,16 +565,8 @@ public class MainUI extends JFrame {
         int i = 0;
         String reportMessage = "City NHPI Over Time Descriptive Data\n" + "==============================\n";
         if (locations.size() > 0) {
-//                for (Node node : result) {
                 String dataInfo = "The descriptive data for the locations: \n";
                 reportMessage = reportMessage.concat(dataInfo);
-//            for(int j = 0; j < result.size(); j++) {
-////                dataInfo =  result.get(j).getLocation() + "\n" + "\tStart Date _ End Date: " + startTime + " / " + endTime + "\n"
-////                        + "\tNHPI: " + getAverage(result.get(j)) + "\n";
-//                dataInfo = "(" + locations.get(i) + ")\n";
-//                reportMessage = reportMessage.concat(dataInfo);
-//                i++;
-//            }
 
             SummaryStatistics summaryObject;
             for (Node data: result){
@@ -614,13 +581,7 @@ public class MainUI extends JFrame {
                 reportMessage = reportMessage.concat(dataInfo);
 
             }
-
-
-
         }
-
-
-
         report.setText(reportMessage);
         outputScrollPane = new JScrollPane(report);
         outputScrollPane.setPreferredSize(new Dimension(400, 300));
@@ -649,30 +610,22 @@ public class MainUI extends JFrame {
         scatterTimeSeriesPanel.setBackground(Color.white);
     }
 
-    private void createPie(JPanel west) {
-        // Different way to create pie chart
-        /*
-         * var dataset = new DefaultPieDataset(); dataset.setValue("Unemployed", 3.837);
-         * dataset.setValue("Employed", 96.163);
-         *
-         * JFreeChart pieChart = ChartFactory.createPieChart("Women's Unemployment",
-         * dataset, true, true, false);
-         */
-
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        dataset.addValue(3.946, "Unemployed", "Men");
-        dataset.addValue(96.054, "Employed", "Men");
-        dataset.addValue(3.837, "Unemployed", "Women");
-        dataset.addValue(96.163, "Employed", "Women");
-
-        JFreeChart pieChart = ChartFactory.createMultiplePieChart("Unemployment: Men vs Women", dataset,
-                TableOrder.BY_COLUMN, true, true, false);
-
-        ChartPanel chartPanel = new ChartPanel(pieChart);
-        chartPanel.setPreferredSize(new Dimension(400, 300));
-        chartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        chartPanel.setBackground(Color.white);
-    }
+//    private void createPie(JPanel west) {
+//
+//        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+//        dataset.addValue(3.946, "Unemployed", "Men");
+//        dataset.addValue(96.054, "Employed", "Men");
+//        dataset.addValue(3.837, "Unemployed", "Women");
+//        dataset.addValue(96.163, "Employed", "Women");
+//
+//        JFreeChart pieChart = ChartFactory.createMultiplePieChart("Unemployment: Men vs Women", dataset,
+//                TableOrder.BY_COLUMN, true, true, false);
+//
+//        ChartPanel chartPanel = new ChartPanel(pieChart);
+//        chartPanel.setPreferredSize(new Dimension(400, 300));
+//        chartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+//        chartPanel.setBackground(Color.white);
+//    }
 
     private void createBar(JPanel west) {
 
@@ -818,6 +771,7 @@ public class MainUI extends JFrame {
                 result.add(total);
                 month = 1;
                 startYear++;
+                total = 0;
             }
             else{
                 month++;
@@ -910,15 +864,15 @@ public class MainUI extends JFrame {
         }
     }
 
-    private void createCompareFrame(Double data,String city,String conclusion,JPanel east){
+    private void createCompareFrame(Double data,String city1,String city2,String conclusion,JPanel east){
         report = new JTextArea();
         report.setEditable(false);
         report.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         report.setBackground(Color.white);
         String reportMessage = String.format("Comparsion result :\n" +
-                "(%s):\n" +
+                "(%s) vs (%s)\n" +
                 "P_Value: %.4f\n" +
-                "%s",city,data,conclusion);
+                "%s",city1,city2,data,conclusion);
         report.setText(reportMessage);
         outputScrollPane = new JScrollPane(report);
         outputScrollPane.setPreferredSize(new Dimension(400, 300));
