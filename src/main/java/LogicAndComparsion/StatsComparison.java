@@ -1,5 +1,6 @@
 package LogicAndComparsion;
 
+//@author Jayant
 public class StatsComparison {
 	
 	private TimeSeries Ts1;
