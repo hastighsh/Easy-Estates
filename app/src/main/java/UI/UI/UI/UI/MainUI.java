@@ -434,6 +434,7 @@ public class MainUI extends JFrame {
 
 
         // comparing drop-down menu, button, ...
+
         JButton statsBtn = new JButton("Compare by T-test");
         statsBtn.addActionListener(e->{
             Location location = new Location("Hamilton, Ontario");
@@ -477,6 +478,7 @@ public class MainUI extends JFrame {
         west = new JPanel();
         west.setLayout(new GridLayout(2, 0));
         createCharts(west);
+        createCompareFrame(east);
 
         getContentPane().add(north, BorderLayout.NORTH);
         getContentPane().add(east, BorderLayout.EAST);
@@ -970,6 +972,7 @@ public class MainUI extends JFrame {
 
         west.removeAll();
         createReport(west);
+
         for(String panel:visuals){
             if(panel.equals("Line Chart")){
                 createLine(west);
@@ -1034,6 +1037,22 @@ public class MainUI extends JFrame {
         else{
             return true;
         }
+    }
+
+    private void createCompareFrame(JPanel east){
+        report = new JTextArea();
+        report.setEditable(false);
+        report.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        report.setBackground(Color.white);
+        String reportMessage = "add a dialog box for adding a new time series \n(or we can add other time series and just save them somewhere at the top and just choose\n " +
+                "between them in the dialog box, proceed as you see fit)\n then we need to check for the exception of having two different time series\n and if not giving the proper errors" +
+                "the name of them are in the document).\n Then just use whatever is the return values in the compare class to write the differences\n and print them like the regular report table we already have." +
+                "\n* ask Jayant and James if they only want the linear regression or the other regression as well." +
+                "\n P.s: this method invoker is in line 481, remove it later";
+        report.setText(reportMessage);
+        outputScrollPane = new JScrollPane(report);
+        outputScrollPane.setPreferredSize(new Dimension(400, 300));
+        east.add(outputScrollPane);
     }
 
 
