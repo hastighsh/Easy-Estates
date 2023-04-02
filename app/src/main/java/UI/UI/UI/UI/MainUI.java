@@ -11,6 +11,7 @@ import LogicAndComparsion.Location;
 import LogicAndComparsion.Logic;
 import LogicAndComparsion.StatsComparison;
 import LogicAndComparsion.Time;
+import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -31,6 +32,8 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+
+import static org.apache.commons.math3.util.Precision.round;
 
 public class MainUI extends JFrame {
     private class Node implements Comparable {
@@ -120,7 +123,7 @@ public class MainUI extends JFrame {
                 west.remove(outputScrollPane);
                 createReport(west);
                 SwingUtilities.updateComponentTreeUI(west);
-                System.out.println("naaaarrrr");
+
             }
         });
 
@@ -129,7 +132,7 @@ public class MainUI extends JFrame {
                 west.remove(outputScrollPane);
                 createDescriptiveReport(west);
                 SwingUtilities.updateComponentTreeUI(west);
-                System.out.println("hello");
+
             }
         });
 
@@ -550,13 +553,30 @@ public class MainUI extends JFrame {
 //                for (Node node : result) {
                 String dataInfo = "The descriptive data for the locations: \n";
                 reportMessage = reportMessage.concat(dataInfo);
-            for(int j = 0; j < result.size(); j++) {
-//                dataInfo =  result.get(j).getLocation() + "\n" + "\tStart Date _ End Date: " + startTime + " / " + endTime + "\n"
-//                        + "\tNHPI: " + getAverage(result.get(j)) + "\n";
-                dataInfo = "(" + locations.get(i) + ")\n";
+//            for(int j = 0; j < result.size(); j++) {
+////                dataInfo =  result.get(j).getLocation() + "\n" + "\tStart Date _ End Date: " + startTime + " / " + endTime + "\n"
+////                        + "\tNHPI: " + getAverage(result.get(j)) + "\n";
+//                dataInfo = "(" + locations.get(i) + ")\n";
+//                reportMessage = reportMessage.concat(dataInfo);
+//                i++;
+//            }
+
+            SummaryStatistics summaryObject;
+            for (Node data: result){
+               summaryObject = log.getSummary(data.getData());
+                dataInfo ="( " + data.getLocation() + " )\n" +
+                        " Mean NHPI: " + round(summaryObject.getMean(), 2) + "\n" +
+                        " Max: " + round(summaryObject.getMax(), 2) + "\n" +
+                        " Min: " + round(summaryObject.getMin(), 2) + "\n" +
+                        " Standard Deviation: " + round(summaryObject.getStandardDeviation(), 2) + "\n" +
+                        " Variance: " + round(summaryObject.getVariance(), 2) + "\n" +
+                        "--------------------------------\n";
                 reportMessage = reportMessage.concat(dataInfo);
-                i++;
+
             }
+
+
+
         }
 
 
