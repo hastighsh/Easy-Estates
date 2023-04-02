@@ -3,6 +3,7 @@ package UI.UI;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Vector;
 
 import javax.swing.*;
@@ -181,8 +182,8 @@ public class MainUI extends JFrame {
         countriesNames.add("Canada");
 
         countriesNames.sort(null);
-        JComboBox<String> countriesList = new JComboBox<String>(countriesNames); // making the vector into a drop-down menu
-
+        JComboBox<String> countriesList = new JComboBox<>(countriesNames); // making the vector into a drop-down menu
+        countriesList.setPreferredSize(new Dimension(300,30));
         countriesList.getSelectedItem();
 //        System.out.println( countriesList.getSelectedItem());
 //        UI.MainUI m = new UI.MainUI();
@@ -289,10 +290,10 @@ public class MainUI extends JFrame {
                         try {
                             System.out.println("fetchData");
                             ArrayList<Double> get = log.fetchData(location, startTime, endTime);
-                            System.out.println(get);
                             if(result.size()==0){ // if the result array is empty add one node to it
                                 result.add(new Node(location.getName(),get));
                             }else{
+                                //check the repeat node in the result
                                 boolean check = true;
                                 for(int j = 0; j < result.size(); j++){
                                     if(result.get(j).getLocation().equals(str)){
@@ -437,25 +438,63 @@ public class MainUI extends JFrame {
 
         JButton statsBtn = new JButton("Compare by T-test");
         statsBtn.addActionListener(e->{
-            Location location = new Location("Hamilton, Ontario");
-            Time start1 = new Time ("1981");		// user gives this (comes as parameter from UI call, logic.AddTimeSeries(place, startTime, endTime);
-            Time end1 = new Time ("1998");
-            Time start2 = new Time ("1991");
-            Time end2 = new Time ("1999");
-            try{
-                ArrayList<Double> data1 = log.fetchData(location,start1,end1);//  fetchData(place, startTime, endTime) returns data1, data2
-                System.out.println(data1);
-                ArrayList<Double> data2 =log.fetchData(location,start2,end2);
-                System.out.println(data2);
-                LogicAndComparsion.TimeSeries tseries1 = new LogicAndComparsion.TimeSeries(data1, start1, end1);
-                LogicAndComparsion.TimeSeries tseries2 = new LogicAndComparsion.TimeSeries(data2, start2, end2);
-                StatsComparison sc = log.compareTimeSeries(tseries1, tseries2);
-                System.out.println(sc.getPValue());
-                System.out.println(sc.getConclusion());
-            }catch (SQLException ex){
-                throw new RuntimeException(ex);
+            if(result.size()==0){
+                String dia = "add a city first";
+                makeDialogBox(dia);
             }
-
+            else {
+                JDialog window = new JDialog(this);
+                window.setLocationRelativeTo(null);
+                window.setPreferredSize(new Dimension(600, 100));
+                JComboBox<String> item = new JComboBox<>();
+                for (Node node : result) {
+                    item.addItem(node.getLocation());
+                }
+                JLabel fromLabel = new JLabel("From:");
+                JLabel toLabel = new JLabel("To:");
+                JLabel cityLabel = new JLabel("City");
+                JComboBox<String> compareFrom = new JComboBox<>(years);
+                JComboBox<String> compareTo = new JComboBox<>(years);
+                JButton submit = new JButton("submit");
+                window.add(cityLabel);
+                window.add(item);
+                window.add(fromLabel);
+                window.add(compareFrom);
+                window.add(toLabel);
+                window.add(compareTo);
+                window.add(submit);
+                window.setLayout(new FlowLayout());
+                window.pack();
+                window.setVisible(true);
+                submit.addActionListener(c -> {
+                    try {
+                        Location location = new Location((String)item.getSelectedItem());
+                        Time start1 = new Time((String) fromList.getSelectedItem());        // user gives this (comes as parameter from UI call, logic.AddTimeSeries(place, startTime, endTime);
+                        Time end1 = new Time((String) toList.getSelectedItem());
+                        Time start2 = new Time((String) compareFrom.getSelectedItem());
+                        Time end2 = new Time((String) compareTo.getSelectedItem());
+                        if(start1.equals(start2) && end1.equals(end2)){
+                            makeDialogBox("please select two different time series");
+                        }
+                        else{
+                            window.dispose();
+                            ArrayList<Double> data1 = log.fetchData(location, start1, end1);//  fetchData(place, startTime, endTime) returns data1, data2
+                            System.out.println(data1);
+                            ArrayList<Double> data2 = log.fetchData(location, start2, end2);
+                            System.out.println(data2);
+                            LogicAndComparsion.TimeSeries tseries1 = new LogicAndComparsion.TimeSeries(data1, start1, end1);
+                            LogicAndComparsion.TimeSeries tseries2 = new LogicAndComparsion.TimeSeries(data2, start2, end2);
+                            StatsComparison sc = log.compareTimeSeries(tseries1, tseries2);
+                            System.out.println(sc.getPValue());
+                            System.out.println(sc.getConclusion());
+                            east.remove(outputScrollPane);
+                            createCompareFrame(sc.getPValue(),location.getName(),sc.getConclusion(),east);
+                        }
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                });
+            }
         });
 
         JComboBox<String> methodsList = new JComboBox<String>(methodsNames);
@@ -478,7 +517,6 @@ public class MainUI extends JFrame {
         west = new JPanel();
         west.setLayout(new GridLayout(2, 0));
         createCharts(west);
-        createCompareFrame(east);
 
         getContentPane().add(north, BorderLayout.NORTH);
         getContentPane().add(east, BorderLayout.EAST);
@@ -509,7 +547,7 @@ public class MainUI extends JFrame {
 //                for (Node node : result) {
             for(int j = 0;j<result.size();j++) {
                 String dataInfo = result.get(j).getLocation() + "\n" + "\tStart Date _ End Date: " + startTime + " / " + endTime + "\n"
-                        + "\tNHPI: " + getAverage(result.get(j)) + "\n";
+                        + "\tNHPI: " + String.format("%.2f",getAverage(result.get(j))) + "\n";
 //                    String dataInfo = locations.get(i) + "\n";
                 reportMessage = reportMessage.concat(dataInfo);
                 i++;
@@ -812,44 +850,7 @@ public class MainUI extends JFrame {
 
 
     private void createTimeSeries(JPanel west) {
-//        TimeSeries series1 = new TimeSeries("Mortality/1000 births");
-//        series1.add(new Year(2018), 5.6);
-//        series1.add(new Year(2017), 5.7);
-//        series1.add(new Year(2016), 5.8);
-//        series1.add(new Year(2015), 5.8);
-//        series1.add(new Year(2014), 5.9);
-//        series1.add(new Year(2013), 6.0);
-//        series1.add(new Year(2012), 6.1);
-//        series1.add(new Year(2011), 6.2);
-//        series1.add(new Year(2010), 6.4);
 
-//        TimeSeries series2 = new TimeSeries("Health Expenditure per Capita");
-//        series2.add(new Year(2018), 10624);
-//        series2.add(new Year(2017), 10209);
-//        series2.add(new Year(2016), 9877);
-//        series2.add(new Year(2015), 9491);
-//        series2.add(new Year(2014), 9023);
-//        series2.add(new Year(2013), 8599);
-//        series2.add(new Year(2012), 8399);
-//        series2.add(new Year(2011), 8130);
-//        series2.add(new Year(2010), 7930);
-//        TimeSeriesCollection dataset2 = new TimeSeriesCollection();
-//        dataset2.addSeries(series2);
-
-//        TimeSeries series3 = new TimeSeries("Hospital Beds/1000 people");
-//        series3.add(new Year(2018), 2.92);
-//        series3.add(new Year(2017), 2.87);
-//        series3.add(new Year(2016), 2.77);
-//        series3.add(new Year(2015), 2.8);
-//        series3.add(new Year(2014), 2.83);
-//        series3.add(new Year(2013), 2.89);
-//        series3.add(new Year(2012), 2.93);
-//        series3.add(new Year(2011), 2.97);
-//        series3.add(new Year(2010), 3.05);
-
-        TimeSeriesCollection dataset = new TimeSeriesCollection();
-//        dataset.addSeries(series1);
-//        dataset.addSeries(series3);
 
         XYPlot plot = new XYPlot();
         XYSplineRenderer splinerenderer1 = new XYSplineRenderer();
@@ -858,10 +859,10 @@ public class MainUI extends JFrame {
         plot.setDataset(0, dataset());
         plot.setRenderer(0, splinerenderer1);
         DateAxis domainAxis = new DateAxis("Year");
+
         plot.setDomainAxis(domainAxis);
         plot.setRangeAxis(new NumberAxis("NHPI"));
 
-//        plot.setDataset(1, dataset2);
         plot.setRenderer(1, splinerenderer2);
         plot.setRangeAxis(1, new NumberAxis("?"));
 
@@ -871,11 +872,6 @@ public class MainUI extends JFrame {
         JFreeChart chart = new JFreeChart("NHPI of Cities Over Time",
                 new Font("Serif", java.awt.Font.BOLD, 18), plot, true);
 
-//        chartTimeSerisePanel = new ChartPanel(chart);
-//        chartPanel.setPreferredSize(new Dimension(400, 300));
-//        chartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-//        chartPanel.setBackground(Color.white);
-//        west.add(chartPanel);
 
         chartTimeSeriesPanel = new ChartPanel(chart);
         chartTimeSeriesPanel.setPreferredSize(new Dimension(400, 300));
@@ -898,7 +894,7 @@ public class MainUI extends JFrame {
             dataset.addSeries(xy);
             for(Node node : result){
                 if(location.equals(node.getLocation())){
-                    int startYear = Integer.parseInt(startTime.substring(0,4));
+                    int startYear = Integer.parseInt((String) Objects.requireNonNull(fromList.getSelectedItem()));
                     ArrayList<Double> temp = merge(node);
                     for(int i = 0 ;i<temp.size();i++){
                         xy.add(startYear+i,temp.get(i));
@@ -930,42 +926,39 @@ public class MainUI extends JFrame {
 
     private ArrayList<Double> merge(Node node){
         ArrayList<Double> result = new ArrayList<>();
-        double temp = 0;
-        double counter = 1;
-        int startYear = Integer.parseInt(startTime);
-        int startMonth = Integer.parseInt(startTime.substring(startTime.length()-2));
-        int endYear = Integer.parseInt(endTime.substring(0,4));
-        int endMonth = Integer.parseInt(endTime.substring(endTime.length()-2));
-        int i = 0;
-
-        while((startYear*100+startMonth) != (endYear*100+endMonth+1) && i<node.getData().size()){
-            if(startMonth > 13){
-                startYear++;
-                startMonth = 1;
-                temp = temp/counter;
-                result.add(temp);
-                counter=1;
+        double month = 1;
+        int startYear = Integer.parseInt((String) Objects.requireNonNull(fromList.getSelectedItem()));
+        int endYear = Integer.parseInt((String) Objects.requireNonNull(toList.getSelectedItem()));
+        double total = 0;
+        for(double data:node.getData()){
+            total += data;
+            if(startYear>endYear){
+                break;
             }
-            temp += node.getData().get(i);
-            i+=3;
-            counter++;
-            startMonth++;
+            if(month==12){
+                total = total/12.0;
+                result.add(total);
+                month = 1;
+                startYear++;
+            }
+            else{
+                month++;
+            }
         }
         return result;
     }
 
     private double getAverage(Node node){
         ArrayList<Double> temp = merge(node);
-        double temp1 = 0;
-        double counter = 0;
-        for(int i = 0; i < temp.size(); i++){
-            temp1 += temp.get(i);
+        double result = 0.0;
+        int counter = 0;
+        for(double data:temp){
+            result += data;
             counter++;
-            if(i==temp.size()-1){
-                temp1 /= counter;
-            }
         }
-        return temp1;
+        result /= counter;
+        return result;
+
     }
 
     public void updateView(JPanel west){
@@ -1039,20 +1032,20 @@ public class MainUI extends JFrame {
         }
     }
 
-    private void createCompareFrame(JPanel east){
+    private void createCompareFrame(Double data,String city,String conclusion,JPanel east){
         report = new JTextArea();
         report.setEditable(false);
         report.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         report.setBackground(Color.white);
-        String reportMessage = "add a dialog box for adding a new time series \n(or we can add other time series and just save them somewhere at the top and just choose\n " +
-                "between them in the dialog box, proceed as you see fit)\n then we need to check for the exception of having two different time series\n and if not giving the proper errors" +
-                "the name of them are in the document).\n Then just use whatever is the return values in the compare class to write the differences\n and print them like the regular report table we already have." +
-                "\n* ask Jayant and James if they only want the linear regression or the other regression as well." +
-                "\n P.s: this method invoker is in line 481, remove it later";
+        String reportMessage = String.format("Comparsion result :\n" +
+                "(%s):\n" +
+                "P_Value: %.4f\n" +
+                "%s",city,data,conclusion);
         report.setText(reportMessage);
         outputScrollPane = new JScrollPane(report);
         outputScrollPane.setPreferredSize(new Dimension(400, 300));
         east.add(outputScrollPane);
+        SwingUtilities.updateComponentTreeUI(east);
     }
 
 
