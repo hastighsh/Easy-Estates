@@ -17,7 +17,6 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.block.BlockBorder;
 import org.jfree.chart.plot.CategoryPlot;
@@ -28,9 +27,7 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.renderer.xy.XYSplineRenderer;
 import org.jfree.chart.title.TextTitle;
-import org.jfree.chart.util.TableOrder;
 import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -94,6 +91,7 @@ public class MainUI extends JFrame {
     int visualThreshold = 0;
     int flag = 0;
     double resultForIncrse;
+    String table = "";
 
     public static MainUI getInstance() {
         if (instance == null)
@@ -121,17 +119,19 @@ public class MainUI extends JFrame {
 
         rawDataButton.addActionListener(e -> {
             if(rawDataButton.isSelected()){
-                west.remove(outputScrollPane);
-                createReport(west);
+                table = "report";
+                updateView(west);
                 SwingUtilities.updateComponentTreeUI(west);
 
             }
         });
 
+
         descriptiveDataButton.addActionListener(e -> {
             if(descriptiveDataButton.isSelected()){
-                west.remove(outputScrollPane);
-                createDescriptiveReport(west);
+
+                table = "descriptive";
+                updateView(west);
                 SwingUtilities.updateComponentTreeUI(west);
 
             }
@@ -212,7 +212,6 @@ public class MainUI extends JFrame {
 
                     //update the view with the new data
                     updateView(west);
-                    SwingUtilities.updateComponentTreeUI(west);
                 }
             }
         });
@@ -457,18 +456,21 @@ public class MainUI extends JFrame {
                 window.setLocationRelativeTo(null);
                 window.setPreferredSize(new Dimension(600, 100));
                 JComboBox<String> city1= new JComboBox<>();
-                JComboBox<String> city2 = new JComboBox<>();
+                JComboBox<String> fromTime = new JComboBox<>(years);
+                JComboBox<String> toTime = new JComboBox<>(years);
                 for (Node node : result) {
                     city1.addItem(node.getLocation());
-                    city2.addItem(node.getLocation());
                 }
-                JLabel city1Label = new JLabel("City");
-                JLabel city2Label = new JLabel("City");
+                JLabel city1Label = new JLabel("City:");
+                JLabel fromL = new JLabel("form:");
+                JLabel toL = new JLabel("to: ");
                 JButton submit = new JButton("submit");
                 window.add(city1Label);
                 window.add(city1);
-                window.add(city2Label);
-                window.add(city2);
+                window.add(fromL);
+                window.add(fromTime);
+                window.add(toL);
+                window.add(toTime);
                 window.add(submit);
                 window.setLayout(new FlowLayout());
                 window.pack();
@@ -476,18 +478,19 @@ public class MainUI extends JFrame {
                 submit.addActionListener(c -> {
                     try {
                         Location location1 = new Location((String)city1.getSelectedItem());
-                        Location location2 = new Location((String)city2.getSelectedItem());
                         Time start1 = new Time((String) fromList.getSelectedItem());        // user gives this (comes as parameter from UI call, logic.AddTimeSeries(place, startTime, endTime);
                         Time end1 = new Time((String) toList.getSelectedItem());
+                        Time start2 = new Time((String) fromTime.getSelectedItem());
+                        Time end2 = new Time((String) toTime.getSelectedItem());
 
-                        if(location1.getName().equals(location2.getName())){
-                            makeDialogBox("please select two different cities");
+                        if(start1.equals(start2)&&end1.equals(end2)){
+                            makeDialogBox("please select two different time series");
                         }
                         else{
                             window.dispose();
                             ArrayList<Double> data1 = log.fetchData(location1, start1, end1);//  fetchData(place, startTime, endTime) returns data1, data2
                             System.out.println(data1);
-                            ArrayList<Double> data2 = log.fetchData(location2, start1, end1);
+                            ArrayList<Double> data2 = log.fetchData(location1, start1, end1);
                             System.out.println(data2);
                             LogicAndComparsion.TimeSeries tseries1 = new LogicAndComparsion.TimeSeries(data1, start1, end1);
                             LogicAndComparsion.TimeSeries tseries2 = new LogicAndComparsion.TimeSeries(data2, start1, end1);
@@ -495,7 +498,7 @@ public class MainUI extends JFrame {
                             System.out.println(sc.getPValue());
                             System.out.println(sc.getConclusion());
                             east.remove(outputScrollPane);
-                            createCompareFrame(sc.getPValue(),(String) city1.getSelectedItem(),(String) city2.getSelectedItem(),sc.getConclusion(),east);
+                            createCompareFrame(sc.getPValue(),(String) city1.getSelectedItem(),sc.getConclusion(),east);
                         }
                     } catch (SQLException ex) {
                         throw new RuntimeException(ex);
@@ -791,18 +794,19 @@ public class MainUI extends JFrame {
 
     // based on the threshold and the user choice update the view
     public void updateView(JPanel west){
-
         west.removeAll();
-        createReport(west);
-        updateView(west);
-    }
-    private void forDiscriptive(JPanel west){
-        west.removeAll();
-        createDescriptiveReport(west);
-        updateView(west);
-    }
-    public void updateView(JPanel west){
-
+        if(table.equals("report")){
+            createReport(west);
+            west.add(outputScrollPane);
+        }
+        else if(table.equals("descriptive")){
+            createDescriptiveReport(west);
+            west.add(outputScrollPane);
+        }
+        else{
+            createReport(west);
+            west.add(outputScrollPane);
+        }
         for(String panel:visuals){
             if(panel.equals("Line Chart")){
                 createLine(west);
@@ -875,15 +879,15 @@ public class MainUI extends JFrame {
     }
 
     // making the compare table based on the inputted values
-    private void createCompareFrame(Double data,String city1,String city2,String conclusion,JPanel east){
+    private void createCompareFrame(Double data,String city1,String conclusion,JPanel east){
         report = new JTextArea();
         report.setEditable(false);
         report.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         report.setBackground(Color.white);
         String reportMessage = String.format("Comparsion result :\n" +
-                "(%s) vs (%s)\n" +
+                "(%s) :\n" +
                 "P_Value: %.4f\n" +
-                "%s",city1,city2,data,conclusion);
+                "%s",city1,data,conclusion);
         report.setText(reportMessage);
         outputScrollPane = new JScrollPane(report);
         outputScrollPane.setPreferredSize(new Dimension(400, 300));
