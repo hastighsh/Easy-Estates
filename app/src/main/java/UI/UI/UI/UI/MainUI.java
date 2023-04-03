@@ -371,9 +371,10 @@ public class MainUI extends JFrame {
                     }
                 }
                 if(month1<=0){
-                    makeDialogBox("Month must be positive");
+                    makeDialogBox("Month must be a positive number.");
                 }
                 else{
+                    east.remove(barChartPanel);
                     Logic logic = new Logic();
                     forForecasting(logic.forecast(temp,month1),city);
                 }
@@ -701,7 +702,7 @@ public class MainUI extends JFrame {
 //        plot.setRangeAxis(new NumberAxis("NHPI"));
 
         plot.setRenderer(1, splinerenderer2);
-        plot.setRangeAxis(1, new NumberAxis("?"));
+        plot.setRangeAxis(1, new NumberAxis(""));
 
         plot.mapDatasetToRangeAxis(0, 0);// 1st dataset to 1st y-axis
         plot.mapDatasetToRangeAxis(1, 1); // 2nd dataset to 2nd y-axis
@@ -835,11 +836,11 @@ public class MainUI extends JFrame {
                 "Time",
                 "NHPI",
                 dataset);
-        ChartPanel bar = new ChartPanel(barchart);
-        bar.setPreferredSize(new Dimension(400,300));
-        bar.setBackground(Color.WHITE);
-        bar.setVisible(true);
-        east.add(bar);
+        barChartPanel = new ChartPanel(barchart);
+        barChartPanel.setPreferredSize(new Dimension(400,300));
+        barChartPanel.setBackground(Color.WHITE);
+        barChartPanel.setVisible(true);
+        east.add(barChartPanel);
         SwingUtilities.updateComponentTreeUI(east);
 
     }
@@ -885,7 +886,7 @@ public class MainUI extends JFrame {
     public static void main(String[] args) {
 
         JFrame frame = MainUI.getInstance();
-        frame.setPreferredSize(new Dimension(1200, 600));
+        frame.setPreferredSize(new Dimension(1200, 700));
         frame.pack();
         frame.setVisible(true);
     }
