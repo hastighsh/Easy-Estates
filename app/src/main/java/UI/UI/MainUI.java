@@ -85,7 +85,7 @@ public class MainUI extends JFrame {
     JComboBox<String> fromList, toList;
     JPanel west, east;
     JFreeChart chart,barChart;
-    ChartPanel chartPanel, chartTimeSeriesPanel,barChartPanel, scatterTimeSeriesPanel;
+    ChartPanel chartPanel, chartTimeSeriesPanel,barChartPanel, scatterTimeSeriesPanel,bar;
     JTextArea report;
     JScrollPane outputScrollPane;
     Logic log = new Logic();
@@ -122,7 +122,7 @@ public class MainUI extends JFrame {
         rawDataButton.addActionListener(e -> {
             if(rawDataButton.isSelected()){
                 west.remove(outputScrollPane);
-                createReport(west);
+                forReport(west);
                 SwingUtilities.updateComponentTreeUI(west);
 
             }
@@ -131,8 +131,8 @@ public class MainUI extends JFrame {
         descriptiveDataButton.addActionListener(e -> {
             if(descriptiveDataButton.isSelected()){
                 west.remove(outputScrollPane);
-                createDescriptiveReport(west);
-                SwingUtilities.updateComponentTreeUI(west);
+                forDiscriptive(west);
+                updateView(west);
 
             }
         });
@@ -195,13 +195,11 @@ public class MainUI extends JFrame {
             if(e.getSource() == addLocation){
                 if(locations.contains((String)countriesList.getSelectedItem())){
 
-                    String boxName = "Location List";
                     String dialog = "This location has already been selected. Please add another location.";
                     makeDialogBox(dialog);
 
                 } else if(countriesNames.size() == locations.size()){
 
-                    String boxName = "Location List";
                     String dialog = "No more location to add.";
                     makeDialogBox(dialog);
 
@@ -274,8 +272,10 @@ public class MainUI extends JFrame {
 
                 startTime = fromList.getSelectedItem().toString();
                 endTime = toList.getSelectedItem().toString();
+                int start = Integer.parseInt(startTime);
+                int end = Integer.parseInt(endTime);
 
-                if(!startTime.equals(endTime)) {
+                if(start<end) {
                     // !!!!! throw exception or error window to choose two different time !!!!!!!!!!
                     int i = 0;
                     for (String str : locations) {
@@ -312,6 +312,9 @@ public class MainUI extends JFrame {
                         }
                     }
                 }
+                else{
+                    makeDialogBox("please select correct time series");
+                }
 
             }
 
@@ -332,7 +335,7 @@ public class MainUI extends JFrame {
         north.add(loadData);
 
         // Set bottom bar
-        JButton recalculate = new JButton("Calculate");
+        JButton recalculate = new JButton("Forecasting");
 
         recalculate.addActionListener(e->{
             JDialog optionPane = new JDialog(this);
@@ -375,6 +378,7 @@ public class MainUI extends JFrame {
                 }
                 else{
                     Logic logic = new Logic();
+                    east.remove(bar);
                     forForecasting(logic.forecast(temp,month1),city);
                 }
             });
@@ -508,6 +512,7 @@ public class MainUI extends JFrame {
 
         east = new JPanel();
         east.setLayout(new GridLayout(2, 0));
+
         // Set charts region
         west = new JPanel();
         west.setLayout(new GridLayout(2, 0));
@@ -793,10 +798,17 @@ public class MainUI extends JFrame {
 
     }
 
-    public void updateView(JPanel west){
-
+    private void forReport(JPanel west){
         west.removeAll();
         createReport(west);
+        updateView(west);
+    }
+    private void forDiscriptive(JPanel west){
+        west.removeAll();
+        createDescriptiveReport(west);
+        updateView(west);
+    }
+    public void updateView(JPanel west){
 
         for(String panel:visuals){
             if(panel.equals("Line Chart")){
@@ -835,7 +847,7 @@ public class MainUI extends JFrame {
                 "Time",
                 "NHPI",
                 dataset);
-        ChartPanel bar = new ChartPanel(barchart);
+        bar = new ChartPanel(barchart);
         bar.setPreferredSize(new Dimension(400,300));
         bar.setBackground(Color.WHITE);
         bar.setVisible(true);
