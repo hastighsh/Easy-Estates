@@ -10,6 +10,7 @@ import backend.MySql;
 import machineLearning.LinearRegressionModule;
 import machineLearning.MachineLearningAdapter;
 import machineLearning.MachineLearningModule;
+import machineLearning.SMORegressionModule;
 import org.apache.commons.math3.stat.inference.TTest;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 
@@ -195,17 +196,16 @@ public class Logic implements LogicIF{
 		return ts1Existence && ts2Existence;		
 	}
 	
-	public ArrayList<Double> forecast(ArrayList<Double> data, int months) {	// for use case 5
+	public ArrayList<Double> forecast(ArrayList<Double> data, int months,String model) {	// for use case 5
 		
 		MachineLearningModule module;
 		
-//		if(algorithm == 1) 			
-			module = new LinearRegressionModule();	
-		
-//		else if(algorithm == 2)
-//			module = new SMORegressionModule();
-		
-		//else throw exception
+		if(model.equals("Linear Regression Module"))		{
+			module = new LinearRegressionModule();
+		}
+		else{
+			module = new SMORegressionModule();
+		}
 		
 		MachineLearningAdapter adapter = new MachineLearningAdapter(module);
 		

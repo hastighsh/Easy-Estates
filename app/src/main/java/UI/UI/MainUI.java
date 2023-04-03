@@ -79,7 +79,7 @@ public class MainUI extends JFrame {
     private static ArrayList<String> times = new ArrayList<>();
     private  ArrayList<Node> result = new ArrayList<>();
     private static int counter = 0;
-    JComboBox<String> fromList, toList;
+    JComboBox<String> fromList, toList,methodsList;
     JPanel west, east;
     JFreeChart chart,barChart;
     ChartPanel chartPanel, chartTimeSeriesPanel,barChartPanel, scatterTimeSeriesPanel;
@@ -337,8 +337,12 @@ public class MainUI extends JFrame {
         north.add(loadData);
         // finished top bar ---------------->
 
-
         // Set bottom bar ------------------>
+        JLabel methodLabel = new JLabel("Forecasting methods: ");
+        Vector<String> methodsNames = new Vector<>();
+        methodsNames.add("Linear Regression Module");
+        methodsNames.add("SMO Regression Module");
+        methodsList = new JComboBox<>(methodsNames);
         JButton recalculate = new JButton("Calculate");
 
         // button for forecasting
@@ -386,7 +390,7 @@ public class MainUI extends JFrame {
                     east.remove(barChartPanel);
                     Logic logic = new Logic();
                     //east.remove(bar);
-                    forForecasting(logic.forecast(temp,month1),city);
+                    forForecasting(logic.forecast(temp,month1,(String) Objects.requireNonNull(methodsList.getSelectedItem())),city);
                 }
             });
 
@@ -437,10 +441,6 @@ public class MainUI extends JFrame {
 
 
         // forecasting drop-down menu, button, ...
-        JLabel methodLabel = new JLabel("        Choose Forecasting method: ");
-
-        Vector<String> methodsNames = new Vector<String>();
-        methodsNames.add("Linear Regression Module");
 
 
         // comparing drop-down menu, button, ...
@@ -490,7 +490,7 @@ public class MainUI extends JFrame {
                             window.dispose();
                             ArrayList<Double> data1 = log.fetchData(location1, start1, end1);//  fetchData(place, startTime, endTime) returns data1, data2
                             System.out.println(data1);
-                            ArrayList<Double> data2 = log.fetchData(location1, start1, end1);
+                            ArrayList<Double> data2 = log.fetchData(location1, start2, end2);
                             System.out.println(data2);
                             LogicAndComparsion.TimeSeries tseries1 = new LogicAndComparsion.TimeSeries(data1, start1, end1);
                             LogicAndComparsion.TimeSeries tseries2 = new LogicAndComparsion.TimeSeries(data2, start1, end1);
@@ -507,7 +507,6 @@ public class MainUI extends JFrame {
             }
         });
 
-        JComboBox<String> methodsList = new JComboBox<String>(methodsNames);
 
         // making the bottom pane
         JPanel south = new JPanel();
@@ -842,7 +841,7 @@ public class MainUI extends JFrame {
             i++;
         }
         JFreeChart barchart = ChartFactory.createBarChart(
-                "Forecasting",
+                "Forecasting("+(String) methodsList.getSelectedItem() +")",
                 "Time",
                 "NHPI",
                 dataset);
