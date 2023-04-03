@@ -254,6 +254,7 @@ public class MainUI extends JFrame {
             }
         });
 
+        // setting the time drop down menus and labels
         JLabel from = new JLabel("From");
         JLabel to = new JLabel("To");
 
@@ -264,7 +265,8 @@ public class MainUI extends JFrame {
         fromList = new JComboBox<>(years);
         toList = new JComboBox<>(years);
 
-        //load button
+
+        //load button for fetching data based on the inputted values
         JButton loadData = new JButton("Load Data");
 
         loadData.addActionListener (e->{
@@ -276,12 +278,11 @@ public class MainUI extends JFrame {
                 endTime = toList.getSelectedItem().toString();
 
                 if(!startTime.equals(endTime)) {
-                    // !!!!! throw exception or error window to choose two different time !!!!!!!!!!
+
                     int i = 0;
                     for (String str : locations) {
                         Location location = new Location(locations.get(i));
                         Time startTime = new Time(fromList.getSelectedItem().toString());
-
                         Time endTime = new Time(toList.getSelectedItem().toString());
                         i++;
 
@@ -330,12 +331,15 @@ public class MainUI extends JFrame {
         north.add(to);
         north.add(toList);
         north.add(loadData);
+        // finished top bar ---------------->
 
-        // Set bottom bar
+
+        // Set bottom bar ------------------>
         JButton recalculate = new JButton("Calculate");
 
+        // button for forecasting
         recalculate.addActionListener(e->{
-            JDialog optionPane = new JDialog(this);
+            JDialog optionPane = new JDialog(this); // making a dialog box for input of month and choosing the location
             optionPane.setLocationRelativeTo(null);
             JComboBox<String> item = new JComboBox<>();
             JTextField month = new JTextField();
@@ -356,7 +360,8 @@ public class MainUI extends JFrame {
             optionPane.setLayout(new FlowLayout());
             optionPane.pack();
             optionPane.setVisible(true);
-            button.addActionListener(f->{
+
+            button.addActionListener(f->{ // action listener for submit button
                 String city = "";
                 optionPane.dispose();
                 int month1 = 0;
@@ -394,24 +399,24 @@ public class MainUI extends JFrame {
 
         JComboBox<String> viewsList = new JComboBox<String>(viewsNames);
         JButton addView = new JButton("+");
-        addView.addActionListener(e->{
-            if(checkThreshold()){
+        addView.addActionListener(e->{ // adding different views to the screen
+            if(checkThreshold()){ // check the threshold ( <=3 )
                 if(!visuals.contains((String)viewsList.getSelectedItem())){
                     visuals.add((String)viewsList.getSelectedItem());
                     updateView(west);
                     SwingUtilities.updateComponentTreeUI(west);
                 }
                 else{
-                    makeDialogBox("Your choice already executed");
+                    makeDialogBox("Your choice has already executed");
                 }
             }
            else{
-                makeDialogBox("You can only view up to 3 visualization");
+                makeDialogBox("You can only view up to 3 visualizations");
             }
         });
 
         JButton removeView = new JButton("-");
-        removeView.addActionListener(e->{
+        removeView.addActionListener(e->{ // remove the views from screen
             if(visuals.size()<=0){
                 makeDialogBox("Chart is empty");
             }
@@ -523,12 +528,13 @@ public class MainUI extends JFrame {
     private void createCharts(JPanel west) {
         createReport(west);
         createLine(west);
-        createTimeSeries(west); // Hasti
-        createBar(west); // Lee
-        createScatter(west); //
+        createTimeSeries(west);
+        createBar(west);
+        createScatter(west);
 
     }
 
+    // create the raw data table
     private void createReport(JPanel west) {
         report = new JTextArea();
         report.setEditable(false);
@@ -547,15 +553,13 @@ public class MainUI extends JFrame {
             }
         }
 
-
-
-        // =========== putting the radio buttons for switching between raw data and the stats
         report.setText(reportMessage);
         outputScrollPane = new JScrollPane(report);
         outputScrollPane.setPreferredSize(new Dimension(400, 300));
         west.add(outputScrollPane);
     }
 
+    // create the descriptive data table
     private void createDescriptiveReport(JPanel west){
         report = new JTextArea();
         report.setEditable(false);
@@ -589,6 +593,7 @@ public class MainUI extends JFrame {
         west.add(outputScrollPane);
     }
 
+    // create scatter chart
     private void createScatter(JPanel west) {
         JFreeChart scatterChart = ChartFactory.createScatterPlot("NHPI of Cities Over Time", "Year", "NHPI",  dataset(),
                 PlotOrientation.VERTICAL, true, true, false);
@@ -599,7 +604,7 @@ public class MainUI extends JFrame {
         XYItemRenderer itemrenderer2 = new XYLineAndShapeRenderer(false, true);
 
         plot.setRenderer(1, itemrenderer2);
-        plot.setRangeAxis(1, new NumberAxis("?"));
+        plot.setRangeAxis(1, new NumberAxis(""));
 
         plot.mapDatasetToRangeAxis(0, 0);// 1st dataset to 1st y-axis
         plot.mapDatasetToRangeAxis(1, 1); // 2nd dataset to 2nd y-axis
@@ -611,23 +616,7 @@ public class MainUI extends JFrame {
         scatterTimeSeriesPanel.setBackground(Color.white);
     }
 
-//    private void createPie(JPanel west) {
-//
-//        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-//        dataset.addValue(3.946, "Unemployed", "Men");
-//        dataset.addValue(96.054, "Employed", "Men");
-//        dataset.addValue(3.837, "Unemployed", "Women");
-//        dataset.addValue(96.163, "Employed", "Women");
-//
-//        JFreeChart pieChart = ChartFactory.createMultiplePieChart("Unemployment: Men vs Women", dataset,
-//                TableOrder.BY_COLUMN, true, true, false);
-//
-//        ChartPanel chartPanel = new ChartPanel(pieChart);
-//        chartPanel.setPreferredSize(new Dimension(400, 300));
-//        chartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-//        chartPanel.setBackground(Color.white);
-//    }
-
+    // create bar chart
     private void createBar(JPanel west) {
 
         CategoryPlot plot = new CategoryPlot();
@@ -652,8 +641,8 @@ public class MainUI extends JFrame {
         barChartPanel.setBackground(Color.white);
     }
 
+    // create linear chart
     private void createLine(JPanel west) {
-//
 
         chart = ChartFactory.createXYLineChart("NHPI of Cities Over Time", "Year", "NHPI",  dataset(),
                 PlotOrientation.VERTICAL, true, true, false);
@@ -685,7 +674,7 @@ public class MainUI extends JFrame {
 
     }
 
-
+    // create time series chart
     private void createTimeSeries(JPanel west) {
 
         JFreeChart chart = ChartFactory.createXYLineChart("NHPI of Cities Over Time", "Year", "NHPI",  dataset(),
@@ -696,10 +685,7 @@ public class MainUI extends JFrame {
 
         plot.setDataset(0, dataset());
         plot.setRenderer(0, splinerenderer1);
-        //DateAxis domainAxis = new DateAxis("Year");
 
-//        plot.setDomainAxis("Year");
-//        plot.setRangeAxis(new NumberAxis("NHPI"));
 
         plot.setRenderer(1, splinerenderer2);
         plot.setRangeAxis(1, new NumberAxis(""));
@@ -736,6 +722,7 @@ public class MainUI extends JFrame {
         }
         return dataset;
     }
+
     private DefaultCategoryDataset datasetD(){
         DefaultCategoryDataset data = new DefaultCategoryDataset();
         if(!(locations ==null)) {
@@ -756,6 +743,7 @@ public class MainUI extends JFrame {
         return data;
     }
 
+    // merging the data of one city over a year
     private ArrayList<Double> merge(Node node){
         ArrayList<Double> result = new ArrayList<>();
         double month = 1;
@@ -781,6 +769,7 @@ public class MainUI extends JFrame {
         return result;
     }
 
+    // getting the average of the data based on time for one location
     private double getAverage(Node node){
         ArrayList<Double> temp = merge(node);
         double result = 0.0;
@@ -794,6 +783,7 @@ public class MainUI extends JFrame {
 
     }
 
+    // based on the threshold and the user choice update the view
     public void updateView(JPanel west){
 
         west.removeAll();
@@ -819,6 +809,8 @@ public class MainUI extends JFrame {
         }
 
     }
+
+    //making a barchart for forecasting method
     private void forForecasting(ArrayList<Double> data,String city){
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         int end = Integer.parseInt(endTime);
@@ -846,6 +838,7 @@ public class MainUI extends JFrame {
     }
 
 
+    // making a simple dialog box for prompting the user
     public void makeDialogBox(String dialog){
         JDialog locationFrame = new JDialog(this);
         locationFrame.setDefaultCloseOperation(HIDE_ON_CLOSE);
@@ -856,6 +849,8 @@ public class MainUI extends JFrame {
         locationFrame.setLocationRelativeTo(null);
         locationFrame.setVisible(true);
     }
+
+    // check threshold <= 3
     private boolean checkThreshold(){
         if(visuals.size()>2){
             return false;
@@ -865,6 +860,7 @@ public class MainUI extends JFrame {
         }
     }
 
+    // making the compare table based on the inputted values
     private void createCompareFrame(Double data,String city1,String city2,String conclusion,JPanel east){
         report = new JTextArea();
         report.setEditable(false);
