@@ -26,6 +26,7 @@ public class Logic implements LogicIF{
 	
 	//must have attributes by default:
 	DataBase dataBase;
+	MachineLearningModule module;
 	static int visualizations_running;
 	
 	//to checkExistence of a timeSeries:
@@ -197,8 +198,7 @@ public class Logic implements LogicIF{
 	}
 	
 	public ArrayList<Double> forecast(ArrayList<Double> data, int months,String model) {	// for use case 5
-		
-		MachineLearningModule module;
+
 		
 		if(model.equals("Linear Regression Module"))		{
 			module = new LinearRegressionModule();
@@ -211,6 +211,11 @@ public class Logic implements LogicIF{
 		
 		return adapter.predict(data,months);
 	}
+	public MachineLearningModule getModule(){
+		return module;
+	}
+
 	
 }
+
 

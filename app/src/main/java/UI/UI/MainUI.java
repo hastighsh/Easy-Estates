@@ -83,7 +83,7 @@ public class MainUI extends JFrame {
     JPanel west, east;
     JFreeChart chart,barChart;
     ChartPanel chartPanel, chartTimeSeriesPanel,barChartPanel, scatterTimeSeriesPanel;
-    JTextArea report;
+    JTextArea report,tableF;
     JScrollPane outputScrollPane;
     Logic log = new Logic();
     String startTime= "";
@@ -273,8 +273,8 @@ public class MainUI extends JFrame {
             if(e.getSource()==loadData){
                 east.removeAll();
 
-                startTime = fromList.getSelectedItem().toString();
-                endTime = toList.getSelectedItem().toString();
+                startTime = Objects.requireNonNull(fromList.getSelectedItem()).toString();
+                endTime = Objects.requireNonNull(toList.getSelectedItem()).toString();
                 int start = Integer.parseInt(startTime);
                 int end = Integer.parseInt(endTime);
 
@@ -351,8 +351,12 @@ public class MainUI extends JFrame {
             optionPane.setLocationRelativeTo(null);
             JComboBox<String> item = new JComboBox<>();
             JTextField month = new JTextField();
+            JComboBox<String> visual = new JComboBox();
+            visual.addItem("chart");
+            visual.addItem("table");
             JButton button = new JButton("submit");
-            optionPane.setPreferredSize(new Dimension(400,100));
+            JLabel type = new JLabel("type");
+            optionPane.setPreferredSize(new Dimension(600,100));
             for(Node node:result){
                 item.addItem(node.getLocation());
             }
@@ -364,6 +368,8 @@ public class MainUI extends JFrame {
             optionPane.add(item);
             optionPane.add(label2);
             optionPane.add(month);
+            optionPane.add(type);
+            optionPane.add(visual);
             optionPane.add(button);
             optionPane.setLayout(new FlowLayout());
             optionPane.pack();
@@ -387,10 +393,19 @@ public class MainUI extends JFrame {
                     makeDialogBox("Month must be a positive number.");
                 }
                 else{
-                    east.remove(barChartPanel);
-                    Logic logic = new Logic();
+                    if(barChartPanel!=null){
+                        east.remove(barChartPanel);
+                    }
+                    if(tableF!=null){
+                        east.remove(tableF);
+                    }
                     //east.remove(bar);
-                    forForecasting(logic.forecast(temp,month1,(String) Objects.requireNonNull(methodsList.getSelectedItem())),city);
+                    forForecasting(log.forecast(temp,
+                                    month1,
+                                    (String) Objects.requireNonNull(methodsList.getSelectedItem())),
+                                    city,
+                                    (String) Objects.requireNonNull(visual.getSelectedItem()));
+
                 }
             });
 
@@ -832,30 +847,45 @@ public class MainUI extends JFrame {
     }
 
     //making a barchart for forecasting method
-    private void forForecasting(ArrayList<Double> data,String city){
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        int end = Integer.parseInt(endTime);
-        int i = 1;
-        for(double dataTemp : data){
-            if(i >=13){
-                i = 1;
-                end++;
+    private void forForecasting(ArrayList<Double> data,String city,String type){
+        if(type.equals("chart")){
+            DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+            int end = Integer.parseInt(endTime);
+            int i = 1;
+            for(double dataTemp : data){
+                if(i >=13){
+                    i = 1;
+                    end++;
+                }
+                dataset.addValue(dataTemp,city,end+"-"+i);
+                i++;
             }
-            dataset.addValue(dataTemp,city,end+"-"+i);
-            i++;
+            JFreeChart barchart = ChartFactory.createBarChart(
+                    "Forecasting("+ methodsList.getSelectedItem() +")",
+                    "Time",
+                    "NHPI",
+                    dataset);
+            barChartPanel = new ChartPanel(barchart);
+            barChartPanel.setPreferredSize(new Dimension(400,300));
+            barChartPanel.setBackground(Color.WHITE);
+            barChartPanel.setVisible(true);
+            east.add(barChartPanel);
         }
-        JFreeChart barchart = ChartFactory.createBarChart(
-                "Forecasting("+(String) methodsList.getSelectedItem() +")",
-                "Time",
-                "NHPI",
-                dataset);
-        barChartPanel = new ChartPanel(barchart);
-        barChartPanel.setPreferredSize(new Dimension(400,300));
-        barChartPanel.setBackground(Color.WHITE);
-        barChartPanel.setVisible(true);
-        east.add(barChartPanel);
+        else if(type.equals("table")){
+            tableF = new JTextArea();
+            tableF.setEditable(false);
+            tableF.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+            tableF.setBackground(Color.white);
+            String text = String.format("Forecasting(%s)\n" +
+                    "-------------------------------------\n" +
+                    "%s: \n",methodsList.getSelectedItem(),city);
+            text += log.getModule().stats();
+            report.setText(text);
+            JScrollPane scrollPane= new JScrollPane(report);
+            scrollPane.setPreferredSize(new Dimension(400, 300));
+            east.add(scrollPane);
+        }
         SwingUtilities.updateComponentTreeUI(east);
-
     }
 
 
