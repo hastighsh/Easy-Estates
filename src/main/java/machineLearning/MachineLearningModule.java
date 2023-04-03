@@ -17,4 +17,11 @@ public interface MachineLearningModule {
      * @return results Instances
      */
     public Instances prediction(Instances data, int months);
+
+    /**
+     * Create stats of last model passed through module.
+     * 
+     * @return summary string of stats
+     */
+    public String stats();
 }

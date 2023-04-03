@@ -2,6 +2,7 @@ package machineLearning;
 
 import java.util.ArrayList;
 
+import weka.classifiers.Evaluation;
 import weka.classifiers.functions.SMOreg;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
@@ -19,6 +20,10 @@ import weka.core.Instances;
  */
 
 public class SMORegressionModule implements MachineLearningModule{
+
+    //variable
+    SMOreg model = null;
+    Instances data = null;
 
     public SMORegressionModule() {
     }
@@ -38,6 +43,10 @@ public class SMORegressionModule implements MachineLearningModule{
             System.out.println("some error occured here");
             System.out.println(e.toString());
         }
+
+        modelSetter(smo);
+        dataSetter(data);
+
         return results;
     }
 
@@ -97,5 +106,38 @@ public class SMORegressionModule implements MachineLearningModule{
 
         return indexSet;
     }
+
+    
+    private void dataSetter(Instances data){
+        if (data == null) {
+            throw new NullPointerException();
+        }
+        this.data = data;
+    }
+
+    private void modelSetter(SMOreg model){
+        if (model==null) {
+            throw new NullPointerException();
+        }
+        this.model = model;
+    }
+
+    public String stats(){
+        if (this.model == null) {
+            throw new NullPointerException();
+        }
+
+        Evaluation eval = null;
+
+        try {
+            eval = new Evaluation(this.data);
+            eval.evaluateModel(this.model, this.data);     
+        } catch (Exception e) {
+            System.out.print(e);
+        }
+
+        return eval.toSummaryString();
+    }
+    
     
 }

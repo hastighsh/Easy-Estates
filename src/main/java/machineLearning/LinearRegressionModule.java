@@ -2,6 +2,7 @@ package machineLearning;
 
 import java.util.ArrayList;
 
+import weka.classifiers.Evaluation;
 import weka.classifiers.functions.LinearRegression;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
@@ -16,6 +17,10 @@ import weka.core.Instances;
  */
 
 public class LinearRegressionModule implements MachineLearningModule{
+
+    //variable
+    LinearRegression model = null;
+    Instances data = null;
 
     public LinearRegressionModule() {
     }
@@ -35,6 +40,10 @@ public class LinearRegressionModule implements MachineLearningModule{
             System.out.println("some error occured here");
             System.out.println(e.toString());
         }
+
+        modelSetter(lr);
+        dataSetter(data);
+
         return results;
     }
 
@@ -93,6 +102,37 @@ public class LinearRegressionModule implements MachineLearningModule{
         }
 
         return indexSet;
+    }
+
+    private void dataSetter(Instances data){
+        if (data == null) {
+            throw new NullPointerException();
+        }
+        this.data = data;
+    }
+
+    private void modelSetter(LinearRegression model){
+        if (model==null) {
+            throw new NullPointerException();
+        }
+        this.model = model;
+    }
+
+    public String stats(){
+        if (this.model == null) {
+            throw new NullPointerException();
+        }
+
+        Evaluation eval = null;
+
+        try {
+            eval = new Evaluation(this.data);
+            eval.evaluateModel(this.model, this.data);     
+        } catch (Exception e) {
+            System.out.print(e);
+        }
+
+        return eval.toSummaryString();
     }
     
 }

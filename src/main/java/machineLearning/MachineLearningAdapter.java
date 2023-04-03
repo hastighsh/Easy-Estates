@@ -58,6 +58,16 @@ public class MachineLearningAdapter {
     }
 
     /**
+     * Creates stats from last prediction
+     * MUST HAVE MADE A PREDICTION BEFOREHAND
+     * @return summary string of stats from previous model.
+     * @throws NullPointerException
+     */
+    public String statsLastModel() throws Exception{
+        return module.stats();
+    }
+
+    /**
      * Converts given data into an Instances data type
      * 
      * @param dataIn - expects a 1 col matrix of values
