@@ -114,6 +114,7 @@ public class MachineLearningAdapter {
             values.add(data.value(data.numAttributes()-1));
         }
 
+
         return values;
     }
 
