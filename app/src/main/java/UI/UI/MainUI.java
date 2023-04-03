@@ -278,7 +278,7 @@ public class MainUI extends JFrame {
                 int start = Integer.parseInt(startTime);
                 int end = Integer.parseInt(endTime);
 
-                if(start>end) {
+                if(start<end) {
 
                     int i = 0;
                     for (String str : locations) {
