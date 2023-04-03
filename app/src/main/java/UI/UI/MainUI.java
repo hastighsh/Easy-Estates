@@ -343,7 +343,7 @@ public class MainUI extends JFrame {
         methodsNames.add("Linear Regression Module");
         methodsNames.add("SMO Regression Module");
         methodsList = new JComboBox<>(methodsNames);
-        JButton recalculate = new JButton("Calculate");
+        JButton recalculate = new JButton("Forecast");
 
         // button for forecasting
         recalculate.addActionListener(e->{
@@ -482,9 +482,13 @@ public class MainUI extends JFrame {
                         Time end1 = new Time((String) toList.getSelectedItem());
                         Time start2 = new Time((String) fromTime.getSelectedItem());
                         Time end2 = new Time((String) toTime.getSelectedItem());
-
+                        int startTemp = Integer.parseInt(start2.getName());
+                        int endTemp = Integer.parseInt(end2.getName());
                         if(start1.equals(start2)&&end1.equals(end2)){
                             makeDialogBox("please select two different time series");
+                        }
+                        else if(startTemp>endTemp){
+                            makeDialogBox("select correct time series please");
                         }
                         else{
                             window.dispose();
