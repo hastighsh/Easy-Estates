@@ -502,9 +502,10 @@ public class MainUI extends JFrame {
                         if(start1.equals(start2)&&end1.equals(end2)){
                             makeDialogBox("please select two different time series");
                         }
-                        else if(startTemp>endTemp){
+                        else if(startTemp>=endTemp){
                             makeDialogBox("select correct time series please");
                         }
+
                         else{
                             window.dispose();
                             ArrayList<Double> data1 = log.fetchData(location1, start1, end1);//  fetchData(place, startTime, endTime) returns data1, data2
