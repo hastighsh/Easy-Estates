@@ -82,8 +82,8 @@ public class MainUI extends JFrame {
     JComboBox<String> fromList, toList,methodsList;
     JPanel west, east;
     JFreeChart chart,barChart;
-    ChartPanel chartPanel, chartTimeSeriesPanel,barChartPanel, scatterTimeSeriesPanel;
-    JTextArea report,tableF;
+    ChartPanel chartPanel, chartTimeSeriesPanel,barChartPanel, scatterTimeSeriesPanel,bar;
+    JTextArea report,tableF,reportF;
     JScrollPane outputScrollPane;
     Logic log = new Logic();
     String startTime= "";
@@ -393,8 +393,8 @@ public class MainUI extends JFrame {
                     makeDialogBox("Month must be a positive number.");
                 }
                 else{
-                    if(barChartPanel!=null){
-                        east.remove(barChartPanel);
+                    if(bar!=null){
+                        east.remove(bar);
                     }
                     if(tableF!=null){
                         east.remove(tableF);
@@ -866,11 +866,12 @@ public class MainUI extends JFrame {
                     "Time",
                     "NHPI",
                     dataset);
-            barChartPanel = new ChartPanel(barchart);
-            barChartPanel.setPreferredSize(new Dimension(400,300));
-            barChartPanel.setBackground(Color.WHITE);
-            barChartPanel.setVisible(true);
-            east.add(barChartPanel);
+            bar = new ChartPanel(barchart);
+            bar.setPreferredSize(new Dimension(400,300));
+            bar.setBackground(Color.WHITE);
+            bar.setVisible(true);
+
+            east.add(bar);
         }
         else if(type.equals("table")){
             tableF = new JTextArea();
@@ -881,10 +882,10 @@ public class MainUI extends JFrame {
                     "-------------------------------------\n" +
                     "%s: \n",methodsList.getSelectedItem(),city);
             text += log.getModule().stats();
-            report.setText(text);
-            JScrollPane scrollPane= new JScrollPane(report);
-            scrollPane.setPreferredSize(new Dimension(400, 300));
-            east.add(scrollPane);
+            tableF.setText(text);
+            tableF.setPreferredSize(new Dimension(400,300));
+
+            east.add(tableF);
         }
         SwingUtilities.updateComponentTreeUI(east);
     }
