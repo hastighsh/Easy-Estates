@@ -1,8 +1,10 @@
 Dear Evaluator,
 
-Due to a mix up the uml class diagram in the document submitted on time for EECS 3311 Deliverable 2 had it's DETAILED UML CLASS diagram DELETED. If you look at the document change control, version 2.1 had the uml class diagrams updated on well before the deadline. 
+Due to a mix up the uml class diagram in the document submitted on time for EECS 3311 Deliverable 2 had it's DETAILED UML CLASS diagram DELETED. If you look at the document change control, version 2.1 of the document had the uml class diagrams updated well before the deadline. 
 
-I am attaching the uml class diagram to this message, and would be grateful if you could kindly look over this small mishap without penalty.
+I am attaching the uml class diagram to the main branch, and would be grateful if you could kindly look over this small mishap without penalty. Only this document has been updated (not the code or anything else).
+
+All other documents in the submitted document are up to date and this accident was limited to only the DETILED UML CLASS DIAGRAM. Other documents on github are OLD. So with great hope, we request you to kindly mark the other diagrams from the pdf document submitted on eclass and only the DETAILED UML Class diagram from github. Kindly also note that the detailed table explaining the DETAILED Uml class diagram is part of the document submitted on eclass.
 
 Yours sincere and earnst,
 Team Victor
