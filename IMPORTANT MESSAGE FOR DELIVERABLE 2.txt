@@ -1,0 +1,8 @@
+Dear Evaluator,
+
+Due to a mix up the uml class diagram in the document submitted on time for EECS 3311 Deliverable 2 had it's DETAILED UML CLASS diagram DELETED. If you look at the document change control, version 2.1 had the uml class diagrams updated on well before the deadline. 
+
+I am attaching the uml class diagram to this message, and would be grateful if you could kindly look over this small mishap without penalty.
+
+Yours sincere and earnst,
+Team Victor
