@@ -16,7 +16,7 @@ import weka.core.Instances;
  * @version 1.1
  */
 
-public class LinearRegressionModule implements MachineLearningModule{
+public class LinearRegressionModule extends MachineLearningModule{
 
     //variable
     LinearRegression model = null;

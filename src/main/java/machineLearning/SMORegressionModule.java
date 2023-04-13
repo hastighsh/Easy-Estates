@@ -19,7 +19,7 @@ import weka.core.Instances;
  * @version 1.0
  */
 
-public class SMORegressionModule implements MachineLearningModule{
+public class SMORegressionModule extends MachineLearningModule{
 
     //variable
     SMOreg model = null;

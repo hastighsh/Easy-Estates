@@ -9,19 +9,23 @@ import weka.core.Instances;
  * @version 1.0
  */
 
-public interface MachineLearningModule {
+public abstract class MachineLearningModule {
     /**
      * Creates a prediction of n months to the future
      * @param data Instances
      * @param months int
      * @return results Instances
      */
-    public Instances prediction(Instances data, int months);
+    public Instances prediction(Instances data, int months){
+        return null;
+    }
 
     /**
      * Create stats of last model passed through module.
      * 
      * @return summary string of stats
      */
-    public String stats();
+    public String stats(){
+        return null;
+    }
 }
