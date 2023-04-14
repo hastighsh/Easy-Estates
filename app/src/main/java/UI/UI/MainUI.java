@@ -34,7 +34,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import static org.apache.commons.math3.util.Precision.round;
 
 public class MainUI extends JFrame {
-    private class Node implements Comparable {
+    public static class Node implements Comparable {
         private String location;
         ArrayList<Double> data;
         protected Node(String location,ArrayList<Double> data){
@@ -48,7 +48,7 @@ public class MainUI extends JFrame {
             this.data = data;
         }
 
-        private String getLocation() {
+        protected String getLocation() {
             return location;
         }
 
@@ -81,21 +81,22 @@ public class MainUI extends JFrame {
     private static int counter = 0;
     JComboBox<String> fromList, toList,methodsList;
     JPanel west, east;
-    JFreeChart chart,barChart;
-    ChartPanel chartPanel, chartTimeSeriesPanel,barChartPanel, scatterTimeSeriesPanel,bar;
+    ChartPanel chartTimeSeriesPanel,scatterTimeSeriesPanel,barChart,lineChart;
     JTextArea report,tableF,reportF;
     JScrollPane outputScrollPane;
     Logic log = new Logic();
     String startTime= "";
     String endTime = "";
-    int visualThreshold = 0;
-    int flag = 0;
-    double resultForIncrse;
     String table = "";
+    Linechart line;
+    Barchart bar;
+    Scatterchart scatterChart;
+    TimeSerise timeSerise;
 
     public static MainUI getInstance() {
-        if (instance == null)
+        if (instance == null) {
             instance = new MainUI();
+        }
 
         return instance;
     }
@@ -103,6 +104,9 @@ public class MainUI extends JFrame {
     private MainUI() {
         // Set window title
         super("Easy Estates");
+        init();
+    }
+    private void init(){
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         // Set top bar ---------------->
@@ -259,7 +263,7 @@ public class MainUI extends JFrame {
 
         Vector<String> years = new Vector<String>();
         for (int i = 2022; i >= 1981; i--) {
-                years.add("" + i);
+            years.add("" + i);
         }
         fromList = new JComboBox<>(years);
         toList = new JComboBox<>(years);
@@ -291,7 +295,7 @@ public class MainUI extends JFrame {
                             System.out.println("fetchData");
                             ArrayList<Double> get = log.fetchData(location, startTime, endTime);
                             if(result.size()==0){ // if the result array is empty add one node to it
-                                result.add(new Node(location.getName(),get));
+                                result.add(new Node(location.getName(), get));
                             }else{
                                 //check the repeat node in the result
                                 boolean check = true;
@@ -303,7 +307,7 @@ public class MainUI extends JFrame {
                                     }
                                 }
                                 if(check){
-                                    result.add(new Node(location.getName(),get));
+                                    result.add(new Node(location.getName(), get));
                                 }
                             }
                             // update the view with the new data
@@ -394,7 +398,7 @@ public class MainUI extends JFrame {
                 }
                 else{
                     if(bar!=null){
-                        east.remove(bar);
+                        east.remove(barChart);
                     }
                     if(tableF!=null){
                         east.remove(tableF);
@@ -403,8 +407,8 @@ public class MainUI extends JFrame {
                     forForecasting(log.forecast(temp,
                                     month1,
                                     (String) Objects.requireNonNull(methodsList.getSelectedItem())),
-                                    city,
-                                    (String) Objects.requireNonNull(visual.getSelectedItem()));
+                            city,
+                            (String) Objects.requireNonNull(visual.getSelectedItem()));
 
                 }
             });
@@ -434,7 +438,7 @@ public class MainUI extends JFrame {
                     makeDialogBox("Your choice has already executed");
                 }
             }
-           else{
+            else{
                 makeDialogBox("You can only view up to 3 visualizations");
             }
         });
@@ -555,10 +559,10 @@ public class MainUI extends JFrame {
 
     private void createCharts(JPanel west) {
         createReport(west);
-        createLine(west);
-        createTimeSeries(west);
-        createBar(west);
-        createScatter(west);
+//        createLine(west);
+//        createTimeSeries(west);
+//        createBar(west);
+//        createScatter(west);
 
     }
 
@@ -621,117 +625,9 @@ public class MainUI extends JFrame {
         west.add(outputScrollPane);
     }
 
-    // create scatter chart
-    private void createScatter(JPanel west) {
-        JFreeChart scatterChart = ChartFactory.createScatterPlot("NHPI of Cities Over Time", "Year", "NHPI",  dataset(),
-                PlotOrientation.VERTICAL, true, true, false);
 
 
-        XYPlot plot = scatterChart.getXYPlot();
-        XYItemRenderer itemrenderer1 = new XYLineAndShapeRenderer(false, true);
-        XYItemRenderer itemrenderer2 = new XYLineAndShapeRenderer(false, true);
-
-        plot.setRenderer(1, itemrenderer2);
-        plot.setRangeAxis(1, new NumberAxis(""));
-
-        plot.mapDatasetToRangeAxis(0, 0);// 1st dataset to 1st y-axis
-        plot.mapDatasetToRangeAxis(1, 1); // 2nd dataset to 2nd y-axis
-
-
-        scatterTimeSeriesPanel = new ChartPanel(scatterChart);
-        scatterTimeSeriesPanel.setPreferredSize(new Dimension(400, 300));
-        scatterTimeSeriesPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        scatterTimeSeriesPanel.setBackground(Color.white);
-    }
-
-    // create bar chart
-    private void createBar(JPanel west) {
-
-        CategoryPlot plot = new CategoryPlot();
-        plot.setDataset(0, datasetD());
-        plot.setRenderer(0,  new BarRenderer());
-        CategoryAxis domainAxis = new CategoryAxis("Year");
-        plot.setDomainAxis(domainAxis);
-        plot.setRangeAxis(new NumberAxis("NHPI"));
-
-
-        plot.mapDatasetToRangeAxis(0, 0);// 1st dataset to 1st y-axis
-        plot.mapDatasetToRangeAxis(1, 1); // 2nd dataset to 2nd y-axis
-
-        barChart = new JFreeChart("NHPI of Cities Over Time",
-                new Font("Serif", java.awt.Font.BOLD, 18), plot, true);
-
-
-
-        barChartPanel = new ChartPanel(barChart);
-        barChartPanel.setPreferredSize(new Dimension(400, 300));
-        barChartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        barChartPanel.setBackground(Color.white);
-    }
-
-    // create linear chart
-    private void createLine(JPanel west) {
-
-        chart = ChartFactory.createXYLineChart("NHPI of Cities Over Time", "Year", "NHPI",  dataset(),
-                PlotOrientation.VERTICAL, true, true, false);
-
-        XYPlot plot = chart.getXYPlot();
-
-        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-        renderer.setSeriesPaint(0, Color.RED);
-        renderer.setSeriesStroke(0, new BasicStroke(2.0f));
-
-        plot.setRenderer(renderer);
-        plot.setBackgroundPaint(Color.white);
-
-        plot.setRangeGridlinesVisible(true);
-        plot.setRangeGridlinePaint(Color.BLACK);
-
-        plot.setDomainGridlinesVisible(true);
-        plot.setDomainGridlinePaint(Color.BLACK);
-
-        chart.getLegend().setFrame(BlockBorder.NONE);
-
-        chart.setTitle(
-                new TextTitle("NHPI of Cities Over Time", new Font("Serif", java.awt.Font.BOLD, 18)));
-
-        chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new Dimension(400, 300));
-        chartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        chartPanel.setBackground(Color.white);
-
-    }
-
-    // create time series chart
-    private void createTimeSeries(JPanel west) {
-
-        JFreeChart chart = ChartFactory.createXYLineChart("NHPI of Cities Over Time", "Year", "NHPI",  dataset(),
-                PlotOrientation.VERTICAL, true, true, false);
-        XYPlot plot = chart.getXYPlot();
-        XYSplineRenderer splinerenderer1 = new XYSplineRenderer();
-        XYSplineRenderer splinerenderer2 = new XYSplineRenderer();
-
-        plot.setDataset(0, dataset());
-        plot.setRenderer(0, splinerenderer1);
-
-
-        plot.setRenderer(1, splinerenderer2);
-        plot.setRangeAxis(1, new NumberAxis(""));
-
-        plot.mapDatasetToRangeAxis(0, 0);// 1st dataset to 1st y-axis
-        plot.mapDatasetToRangeAxis(1, 1); // 2nd dataset to 2nd y-axis
-
-
-        chartTimeSeriesPanel = new ChartPanel(chart);
-        chartTimeSeriesPanel.setPreferredSize(new Dimension(400, 300));
-        chartTimeSeriesPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        chartTimeSeriesPanel.setBackground(Color.white);
-
-    }
-
-
-
-    private XYSeriesCollection dataset(){
+    protected XYSeriesCollection dataset(){
         double year = 0;
         double month = 0;
         XYSeriesCollection dataset = new XYSeriesCollection();
@@ -751,7 +647,7 @@ public class MainUI extends JFrame {
         return dataset;
     }
 
-    private DefaultCategoryDataset datasetD(){
+    protected DefaultCategoryDataset datasetD(){
         DefaultCategoryDataset data = new DefaultCategoryDataset();
         if(!(locations ==null)) {
             for (String loc : locations) {
@@ -798,7 +694,7 @@ public class MainUI extends JFrame {
     }
 
     // getting the average of the data based on time for one location
-    private double getAverage(Node node){
+    protected double getAverage(Node node){
         ArrayList<Double> temp = merge(node);
         double result = 0.0;
         int counter = 0;
@@ -823,24 +719,28 @@ public class MainUI extends JFrame {
             west.add(outputScrollPane);
         }
         else{
-            createReport(west);
+           createReport(west);
             west.add(outputScrollPane);
         }
         for(String panel:visuals){
             if(panel.equals("Line Chart")){
-                createLine(west);
-                west.add(chartPanel);
+                line = new Linechart();
+                lineChart = line.createLine(west);
+                west.add(lineChart);
             }
             else if(panel.equals("Time Series Chart")){
-                createTimeSeries(west);
+                timeSerise = new TimeSerise();
+                chartTimeSeriesPanel = timeSerise.createTimeSeries(west);
                 west.add(chartTimeSeriesPanel);
             }
             else if(panel.equals("Bar Chart")){
-                createBar(west);
-                west.add(barChartPanel);
+                bar = new Barchart();
+                barChart = bar.createBar(west);
+                west.add(barChart);
             }
             else if(panel.equals("Scatter Chart")){
-                createScatter(west);
+                scatterChart  = new Scatterchart();
+                scatterTimeSeriesPanel = scatterChart.createScatter(west);
                 west.add(scatterTimeSeriesPanel);
             }
         }
@@ -866,12 +766,12 @@ public class MainUI extends JFrame {
                     "Time",
                     "NHPI",
                     dataset);
-            bar = new ChartPanel(barchart);
-            bar.setPreferredSize(new Dimension(400,300));
-            bar.setBackground(Color.WHITE);
-            bar.setVisible(true);
+            barChart = new ChartPanel(barchart);
+            barChart.setPreferredSize(new Dimension(400,300));
+            barChart.setBackground(Color.WHITE);
+            barChart.setVisible(true);
 
-            east.add(bar);
+            east.add(barChart);
         }
         else if(type.equals("table")){
             tableF = new JTextArea();
@@ -929,8 +829,6 @@ public class MainUI extends JFrame {
         east.add(outputScrollPane);
         SwingUtilities.updateComponentTreeUI(east);
     }
-
-
 
     public static void main(String[] args) {
 
