@@ -18,12 +18,11 @@ public class Scatterchart {
         main = MainUI.getInstance();
     }
     protected ChartPanel createScatter(JPanel west) {
-        JFreeChart scatterChart = ChartFactory.createScatterPlot("NHPI of Cities Over Time", "Year", "NHPI",  main.dataset(),
+        JFreeChart scatterChart = ChartFactory.createScatterPlot("NHPI of Cities Over Time", "Year", "NHPI",  main.dataHandler.dataset(),
                 PlotOrientation.VERTICAL, true, true, false);
 
 
         XYPlot plot = scatterChart.getXYPlot();
-        XYItemRenderer itemrenderer1 = new XYLineAndShapeRenderer(false, true);
         XYItemRenderer itemrenderer2 = new XYLineAndShapeRenderer(false, true);
 
         plot.setRenderer(1, itemrenderer2);

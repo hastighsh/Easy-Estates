@@ -3,11 +3,10 @@ package UI.UI;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Vector;
-
 import javax.swing.*;
-
 import LogicAndComparsion.Location;
 import LogicAndComparsion.Logic;
 import LogicAndComparsion.StatsComparison;
@@ -16,21 +15,7 @@ import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.block.BlockBorder;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.chart.renderer.xy.XYSplineRenderer;
-import org.jfree.chart.title.TextTitle;
 import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-
 import static org.apache.commons.math3.util.Precision.round;
 
 public class MainUI extends JFrame {
@@ -41,7 +26,7 @@ public class MainUI extends JFrame {
             this.location =location;
             this.data = data;
         }
-        private ArrayList<Double> getData(){
+        protected ArrayList<Double> getData(){
             return data;
         }
         private void setData(ArrayList<Double> data){
@@ -50,10 +35,6 @@ public class MainUI extends JFrame {
 
         protected String getLocation() {
             return location;
-        }
-
-        private void setLocation(String location) {
-            this.location = location;
         }
 
         @Override
@@ -77,14 +58,17 @@ public class MainUI extends JFrame {
     private static ArrayList<String> locations = new ArrayList<>();
     private static ArrayList<String> visuals = new ArrayList<>();
     private static ArrayList<String> times = new ArrayList<>();
+    Forcasting forcasting = new Forcasting();
     private  ArrayList<Node> result = new ArrayList<>();
+
+    DataHandler dataHandler;
+    Logic log = new Logic();
     private static int counter = 0;
     JComboBox<String> fromList, toList,methodsList;
     JPanel west, east;
     ChartPanel chartTimeSeriesPanel,scatterTimeSeriesPanel,barChart,lineChart;
-    JTextArea report,tableF,reportF;
+    JTextArea report,tableF;
     JScrollPane outputScrollPane;
-    Logic log = new Logic();
     String startTime= "";
     String endTime = "";
     String table = "";
@@ -142,49 +126,18 @@ public class MainUI extends JFrame {
         });
 
         // location drop-down menu
+        String[] arr = {
+                "Atlantic Region","Quebec","Ontario","Prairie Region","British Columbia","Newfoundland and Labrador",
+                "Prince Edward Island","Nova Scotia","New Brunswick","St. John's, Newfoundland and Labrador",
+                "Charlottetown, Prince Edward Island","Halifax, Nova Scotia","Saint John, Fredericton, and Moncton, New Brunswick",
+                "Québec, Quebec","Sherbrooke, Quebec","Trois-Rivières, Quebec","Montréal, Quebec","Ottawa-Gatineau, Quebec part, Ontario/Quebec",
+                "Ottawa-Gatineau, Ontario part, Ontario/Quebec","Oshawa, Ontario","Toronto, Ontario","Hamilton, Ontario",
+                "St. Catharines-Niagara, Ontario","Kitchener-Cambridge-Waterloo, Ontario","Guelph, Ontario","London, Ontario",
+                "Windsor, Ontario","Greater Sudbury, Ontario","Manitoba","Saskatchewan","Alberta","Winnipeg, Manitoba",
+                "Regina, Saskatchewan","Saskatoon, Saskatchewan","Calgary, Alberta","Edmonton, Alberta","Kelowna, British Columbia",
+                "Vancouver, British Columbia","Victoria, British Columbia","Canada"};
         JLabel chooseCountryLabel = new JLabel("Choose a Location: "); // setting a text
-        Vector<String> countriesNames = new Vector<String>(); // setting a drop-down menu vector
-        countriesNames.add("Atlantic Region"); // adding instances to the menu
-        countriesNames.add("Quebec");
-        countriesNames.add("Ontario");
-        countriesNames.add("Prairie Region");
-        countriesNames.add("British Columbia");
-        countriesNames.add("Newfoundland and Labrador");
-        countriesNames.add("Prince Edward Island");
-        countriesNames.add("Nova Scotia");
-        countriesNames.add("New Brunswick");
-        countriesNames.add("St. John's, Newfoundland and Labrador");
-        countriesNames.add("Charlottetown, Prince Edward Island");
-        countriesNames.add("Halifax, Nova Scotia");
-        countriesNames.add("Saint John, Fredericton, and Moncton, New Brunswick");
-        countriesNames.add("Québec, Quebec");
-        countriesNames.add("Sherbrooke, Quebec");
-        countriesNames.add("Trois-Rivières, Quebec");
-        countriesNames.add("Montréal, Quebec");
-        countriesNames.add("Ottawa-Gatineau, Quebec part, Ontario/Quebec");
-        countriesNames.add("Ottawa-Gatineau, Ontario part, Ontario/Quebec");
-        countriesNames.add("Oshawa, Ontario");
-        countriesNames.add("Toronto, Ontario");
-        countriesNames.add("Hamilton, Ontario");
-        countriesNames.add("St. Catharines-Niagara, Ontario");
-        countriesNames.add("Kitchener-Cambridge-Waterloo, Ontario");
-        countriesNames.add("Guelph, Ontario");
-        countriesNames.add("London, Ontario");
-        countriesNames.add("Windsor, Ontario");
-        countriesNames.add("Greater Sudbury, Ontario");
-        countriesNames.add("Manitoba");
-        countriesNames.add("Saskatchewan");
-        countriesNames.add("Alberta");
-        countriesNames.add("Winnipeg, Manitoba");
-        countriesNames.add("Regina, Saskatchewan");
-        countriesNames.add("Saskatoon, Saskatchewan");
-        countriesNames.add("Calgary, Alberta");
-        countriesNames.add("Edmonton, Alberta");
-        countriesNames.add("Kelowna, British Columbia");
-        countriesNames.add("Vancouver, British Columbia");
-        countriesNames.add("Victoria, British Columbia");
-        countriesNames.add("Canada");
-
+        Vector<String> countriesNames = new Vector<>(Arrays.asList(arr)); // setting a drop-down menu vector
         countriesNames.sort(null);
         JComboBox<String> countriesList = new JComboBox<>(countriesNames); // making the vector into a drop-down menu
         countriesList.setPreferredSize(new Dimension(300,30));
@@ -196,6 +149,8 @@ public class MainUI extends JFrame {
 
 
         addLocation.addActionListener(e -> {
+            dataHandler = DataHandler.getInstance();
+
             if(e.getSource() == addLocation){
                 if(locations.contains((String)countriesList.getSelectedItem())){
 
@@ -216,11 +171,18 @@ public class MainUI extends JFrame {
 
                     //update the view with the new data
                     updateView(west);
+                    SwingUtilities.updateComponentTreeUI(west);
                 }
             }
         });
         System.out.println(locations);
 
+        Vector<String> methodsNames = new Vector<>();
+        methodsNames.add("Linear Regression Module");
+        methodsNames.add("SMO Regression Module");
+        methodsList = new JComboBox<>(methodsNames);
+        JButton recalculate = new JButton("Forecast");
+        recalculate.addActionListener(forcasting);
 
         JButton removeLocation = new JButton("-");
 
@@ -343,77 +305,7 @@ public class MainUI extends JFrame {
 
         // Set bottom bar ------------------>
         JLabel methodLabel = new JLabel("Forecasting methods: ");
-        Vector<String> methodsNames = new Vector<>();
-        methodsNames.add("Linear Regression Module");
-        methodsNames.add("SMO Regression Module");
-        methodsList = new JComboBox<>(methodsNames);
-        JButton recalculate = new JButton("Forecast");
 
-        // button for forecasting
-        recalculate.addActionListener(e->{
-            JDialog optionPane = new JDialog(this); // making a dialog box for input of month and choosing the location
-            optionPane.setLocationRelativeTo(null);
-            JComboBox<String> item = new JComboBox<>();
-            JTextField month = new JTextField();
-            JComboBox<String> visual = new JComboBox();
-            visual.addItem("chart");
-            visual.addItem("table");
-            JButton button = new JButton("submit");
-            JLabel type = new JLabel("type");
-            optionPane.setPreferredSize(new Dimension(600,100));
-            for(Node node:result){
-                item.addItem(node.getLocation());
-            }
-            item.setPreferredSize(new Dimension(120,20));
-            month.setPreferredSize(new Dimension(80,20));
-            JLabel label1 = new JLabel("City: ");
-            JLabel label2 = new JLabel("Month: ");
-            optionPane.add(label1);
-            optionPane.add(item);
-            optionPane.add(label2);
-            optionPane.add(month);
-            optionPane.add(type);
-            optionPane.add(visual);
-            optionPane.add(button);
-            optionPane.setLayout(new FlowLayout());
-            optionPane.pack();
-            optionPane.setVisible(true);
-
-            button.addActionListener(f->{ // action listener for submit button
-                String city = "";
-                optionPane.dispose();
-                int month1 = 0;
-                if(!month.getText().equals("")){
-                    month1 = Integer.parseInt(month.getText());
-                }
-                ArrayList<Double> temp = new ArrayList<>();
-                for(Node node:result){
-                    if(node.getLocation().equals(item.getSelectedItem())){
-                        temp = merge(node);
-                        city = node.getLocation();
-                    }
-                }
-                if(month1<=0){
-                    makeDialogBox("Month must be a positive number.");
-                }
-                else{
-                    if(bar!=null){
-                        east.remove(barChart);
-                    }
-                    if(tableF!=null){
-                        east.remove(tableF);
-                    }
-                    //east.remove(bar);
-                    forForecasting(log.forecast(temp,
-                                    month1,
-                                    (String) Objects.requireNonNull(methodsList.getSelectedItem())),
-                            city,
-                            (String) Objects.requireNonNull(visual.getSelectedItem()));
-
-                }
-            });
-
-        });
 
         JLabel viewsLabel = new JLabel("Available Views: ");
 
@@ -558,32 +450,53 @@ public class MainUI extends JFrame {
     }
 
     private void createCharts(JPanel west) {
-        createReport(west);
-//        createLine(west);
-//        createTimeSeries(west);
-//        createBar(west);
-//        createScatter(west);
-
+        createReport(west,"report");
     }
 
     // create the raw data table
-    private void createReport(JPanel west) {
+    private void createReport(JPanel west,String type) {
         report = new JTextArea();
         report.setEditable(false);
         report.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         report.setBackground(Color.white);
+        String reportMessage = "";
 
         //raw data table
-        int i = 0;
-        String reportMessage = "City NHPI Over Time Raw Data\n" + "==============================\n";
-        if (locations.size() > 0) {
-            for(int j = 0;j<result.size();j++) {
-                String dataInfo = result.get(j).getLocation() + "\n" + "\tStart Date _ End Date: " + startTime + " / " + endTime + "\n"
-                        + "\tNHPI: " + String.format("%.2f",getAverage(result.get(j))) + "\n";
-                reportMessage = reportMessage.concat(dataInfo);
-                i++;
+        if(type.equals("report")){
+            int i = 0;
+            reportMessage = "City NHPI Over Time Raw Data\n" + "==============================\n";
+            if (locations.size() > 0) {
+                for(int j = 0;j<result.size();j++) {
+                    String dataInfo = result.get(j).getLocation() + "\n" + "\tStart Date _ End Date: " + startTime + " / " + endTime + "\n"
+                            + "\tNHPI: " + String.format("%.2f",dataHandler.getAverage(result.get(j))) + "\n";
+                    reportMessage = reportMessage.concat(dataInfo);
+                    i++;
+                }
             }
         }
+        else if(type.equals("descriptive")){
+            reportMessage = "City NHPI Over Time Descriptive Data\n" + "==============================\n";
+            if (locations.size() > 0) {
+                String dataInfo = "The descriptive data for the locations: \n";
+                 reportMessage = reportMessage.concat(dataInfo);
+
+                SummaryStatistics summaryObject;
+                for (Node data: result){
+                    summaryObject = log.getSummary(data.getData());
+                    dataInfo ="( " + data.getLocation() + " )\n" +
+                            " Mean NHPI: " + round(summaryObject.getMean(), 2) + "\n" +
+                            " Max: " + round(summaryObject.getMax(), 2) + "\n" +
+                            " Min: " + round(summaryObject.getMin(), 2) + "\n" +
+                            " Standard Deviation: " + round(summaryObject.getStandardDeviation(), 2) + "\n" +
+                            " Variance: " + round(summaryObject.getVariance(), 2) + "\n" +
+                            "--------------------------------\n";
+                    reportMessage = reportMessage.concat(dataInfo);
+
+                }
+            }
+        }
+
+        //descriptive data table
 
         report.setText(reportMessage);
         outputScrollPane = new JScrollPane(report);
@@ -592,136 +505,13 @@ public class MainUI extends JFrame {
     }
 
     // create the descriptive data table
-    private void createDescriptiveReport(JPanel west){
-        report = new JTextArea();
-        report.setEditable(false);
-        report.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        report.setBackground(Color.white);
 
-
-        int i = 0;
-        String reportMessage = "City NHPI Over Time Descriptive Data\n" + "==============================\n";
-        if (locations.size() > 0) {
-                String dataInfo = "The descriptive data for the locations: \n";
-                reportMessage = reportMessage.concat(dataInfo);
-
-            SummaryStatistics summaryObject;
-            for (Node data: result){
-               summaryObject = log.getSummary(data.getData());
-                dataInfo ="( " + data.getLocation() + " )\n" +
-                        " Mean NHPI: " + round(summaryObject.getMean(), 2) + "\n" +
-                        " Max: " + round(summaryObject.getMax(), 2) + "\n" +
-                        " Min: " + round(summaryObject.getMin(), 2) + "\n" +
-                        " Standard Deviation: " + round(summaryObject.getStandardDeviation(), 2) + "\n" +
-                        " Variance: " + round(summaryObject.getVariance(), 2) + "\n" +
-                        "--------------------------------\n";
-                reportMessage = reportMessage.concat(dataInfo);
-
-            }
-        }
-        report.setText(reportMessage);
-        outputScrollPane = new JScrollPane(report);
-        outputScrollPane.setPreferredSize(new Dimension(400, 300));
-        west.add(outputScrollPane);
-    }
-
-
-
-    protected XYSeriesCollection dataset(){
-        double year = 0;
-        double month = 0;
-        XYSeriesCollection dataset = new XYSeriesCollection();
-        for(String location: locations){
-            XYSeries xy = new XYSeries(location);
-            dataset.addSeries(xy);
-            for(Node node : result){
-                if(location.equals(node.getLocation())){
-                    int startYear = Integer.parseInt((String) Objects.requireNonNull(fromList.getSelectedItem()));
-                    ArrayList<Double> temp = merge(node);
-                    for(int i = 0 ;i<temp.size();i++){
-                        xy.add(startYear+i,temp.get(i));
-                    }
-                }
-            }
-        }
-        return dataset;
-    }
-
-    protected DefaultCategoryDataset datasetD(){
-        DefaultCategoryDataset data = new DefaultCategoryDataset();
-        if(!(locations ==null)) {
-            for (String loc : locations) {
-                for (Node node : result) {
-                    if(loc.equals(node.getLocation())) {
-                        int startYear = Integer.parseInt(startTime);
-                        ArrayList<Double> temp = merge(node);
-                        System.out.println(temp);
-                        for (double value : temp) {
-                            data.addValue(value, loc, "" + startYear);
-                            startYear++;
-                        }
-                    }
-                }
-            }
-        }
-        return data;
-    }
-
-    // merging the data of one city over a year
-    private ArrayList<Double> merge(Node node){
-        ArrayList<Double> result = new ArrayList<>();
-        double month = 1;
-        int startYear = Integer.parseInt((String) Objects.requireNonNull(fromList.getSelectedItem()));
-        int endYear = Integer.parseInt((String) Objects.requireNonNull(toList.getSelectedItem()));
-        double total = 0;
-        for(double data:node.getData()){
-            total += data;
-            if(startYear>endYear){
-                break;
-            }
-            if(month==12){
-                total = total/12.0;
-                result.add(total);
-                month = 1;
-                startYear++;
-                total = 0;
-            }
-            else{
-                month++;
-            }
-        }
-        return result;
-    }
-
-    // getting the average of the data based on time for one location
-    protected double getAverage(Node node){
-        ArrayList<Double> temp = merge(node);
-        double result = 0.0;
-        int counter = 0;
-        for(double data:temp){
-            result += data;
-            counter++;
-        }
-        result /= counter;
-        return result;
-
-    }
 
     // based on the threshold and the user choice update the view
     public void updateView(JPanel west){
         west.removeAll();
-        if(table.equals("report")){
-            createReport(west);
-            west.add(outputScrollPane);
-        }
-        else if(table.equals("descriptive")){
-            createDescriptiveReport(west);
-            west.add(outputScrollPane);
-        }
-        else{
-           createReport(west);
-            west.add(outputScrollPane);
-        }
+        createReport(west,table);
+        west.add(outputScrollPane);
         for(String panel:visuals){
             if(panel.equals("Line Chart")){
                 line = new Linechart();
@@ -748,7 +538,7 @@ public class MainUI extends JFrame {
     }
 
     //making a barchart for forecasting method
-    private void forForecasting(ArrayList<Double> data,String city,String type){
+    protected void forForecasting(ArrayList<Double> data,String city,String type){
         if(type.equals("chart")){
             DefaultCategoryDataset dataset = new DefaultCategoryDataset();
             int end = Integer.parseInt(endTime);
@@ -828,6 +618,19 @@ public class MainUI extends JFrame {
         outputScrollPane.setPreferredSize(new Dimension(400, 300));
         east.add(outputScrollPane);
         SwingUtilities.updateComponentTreeUI(east);
+    }
+
+    protected ArrayList<Node> getResult(){
+        return result;
+    }
+    protected ArrayList<String> getLocations(){
+        return locations;
+    }
+    protected String getStartTime(){
+        return startTime;
+    }
+    protected String getEndTime(){
+        return endTime;
     }
 
     public static void main(String[] args) {

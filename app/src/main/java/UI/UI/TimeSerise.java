@@ -19,13 +19,13 @@ public class TimeSerise {
 
     protected ChartPanel createTimeSeries(JPanel west) {
 
-        JFreeChart chart = ChartFactory.createXYLineChart("NHPI of Cities Over Time", "Year", "NHPI",  main.dataset(),
+        JFreeChart chart = ChartFactory.createXYLineChart("NHPI of Cities Over Time", "Year", "NHPI",  main.dataHandler.dataset(),
                 PlotOrientation.VERTICAL, true, true, false);
         XYPlot plot = chart.getXYPlot();
         XYSplineRenderer splinerenderer1 = new XYSplineRenderer();
         XYSplineRenderer splinerenderer2 = new XYSplineRenderer();
 
-        plot.setDataset(0, main.dataset());
+        plot.setDataset(0, main.dataHandler.dataset());
         plot.setRenderer(0, splinerenderer1);
 
 

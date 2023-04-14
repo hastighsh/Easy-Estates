@@ -18,7 +18,7 @@ public class Barchart {
     protected ChartPanel createBar(JPanel west) {
 
         CategoryPlot plot = new CategoryPlot();
-        plot.setDataset(0, main.datasetD());
+        plot.setDataset(0, main.dataHandler.datasetD());
         plot.setRenderer(0,  new BarRenderer());
         CategoryAxis domainAxis = new CategoryAxis("Year");
         plot.setDomainAxis(domainAxis);

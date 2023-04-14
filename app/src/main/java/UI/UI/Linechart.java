@@ -20,7 +20,7 @@ public class Linechart {
     }
     protected ChartPanel createLine(JPanel west) {
 
-        JFreeChart chart = ChartFactory.createXYLineChart("NHPI of Cities Over Time", "Year", "NHPI", main.dataset(),
+        JFreeChart chart = ChartFactory.createXYLineChart("NHPI of Cities Over Time", "Year", "NHPI", main.dataHandler.dataset(),
                 PlotOrientation.VERTICAL, true, true, false);
 
         XYPlot plot = chart.getXYPlot();
