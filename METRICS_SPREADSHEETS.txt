@@ -1,0 +1,7 @@
+THIS IS THE LINK TO THE SPREADSHEET FOR THE METRICS BOTH BEFORE AND AFTER REFACTORING
+https://docs.google.com/spreadsheets/d/1ylY9_XnvWO6ssUrSdZUQ12R6uLWIrRvweE61n_yJsdE/edit?usp=sharing
+
+In this spreadsheet we have all our metrics that we gathered with 2 different tools. 1- metricsTree for Intellij (the UI metrics)
+2- Code MR for Eclipse (we tried the tools in the instruction but they didn't work as intended) (Logic/MAchineLearning/Backend)
+
+Due to some complication for exporting the data from the tool, we exported the data by hand. However, none of the data were changed and the numbers are from the tools.

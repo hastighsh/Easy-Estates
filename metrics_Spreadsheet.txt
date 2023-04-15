@@ -1,2 +1,0 @@
-This is the link to the google sheet with all the metrics before and after refactoring
-https://docs.google.com/spreadsheets/d/1ylY9_XnvWO6ssUrSdZUQ12R6uLWIrRvweE61n_yJsdE/edit?usp=sharing
