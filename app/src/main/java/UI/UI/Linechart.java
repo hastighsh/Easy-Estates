@@ -8,19 +8,20 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.TextTitle;
+import org.jfree.data.xy.XYSeriesCollection;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class Linechart {
-    private MainUI main;
-    public Linechart(){
-        main = MainUI.getInstance();
+public class Linechart implements Charts{
+    ChartPanel chart;
+    public Linechart(XYSeriesCollection dataset){
+        chart = create(dataset);
 
     }
-    protected ChartPanel createLine(JPanel west) {
+    public ChartPanel create(XYSeriesCollection dataset) {
 
-        JFreeChart chart = ChartFactory.createXYLineChart("NHPI of Cities Over Time", "Year", "NHPI", main.dataHandler.dataset(),
+        JFreeChart chart = ChartFactory.createXYLineChart("NHPI of Cities Over Time", "Year", "NHPI",dataset,
                 PlotOrientation.VERTICAL, true, true, false);
 
         XYPlot plot = chart.getXYPlot();
@@ -48,5 +49,17 @@ public class Linechart {
         chartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         chartPanel.setBackground(Color.white);
         return chartPanel;
+    }
+    @Override
+    public String toString(){
+        return "Time Series Chart";
+    }
+    public ChartPanel getChart(){
+        return chart;
+    }
+
+    @Override
+    public void update(XYSeriesCollection dataset) {
+        chart = create(dataset);
     }
 }

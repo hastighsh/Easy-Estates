@@ -8,17 +8,18 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.xy.XYSeriesCollection;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class Scatterchart {
-    MainUI main;
-    public Scatterchart(){
-        main = MainUI.getInstance();
+public class Scatterchart implements Charts{
+    ChartPanel chart;
+    public Scatterchart(XYSeriesCollection dataset){
+        chart = create(dataset);
     }
-    protected ChartPanel createScatter(JPanel west) {
-        JFreeChart scatterChart = ChartFactory.createScatterPlot("NHPI of Cities Over Time", "Year", "NHPI",  main.dataHandler.dataset(),
+    public ChartPanel create(XYSeriesCollection dataset) {
+        JFreeChart scatterChart = ChartFactory.createScatterPlot("NHPI of Cities Over Time", "Year", "NHPI", dataset,
                 PlotOrientation.VERTICAL, true, true, false);
 
 
@@ -37,5 +38,16 @@ public class Scatterchart {
         scatterTimeSeriesPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         scatterTimeSeriesPanel.setBackground(Color.white);
         return scatterTimeSeriesPanel;
+    }
+    public String toString(){
+        return "Scatter Chart";
+    }
+    public ChartPanel getChart(){
+        return chart;
+    }
+
+    @Override
+    public void update(XYSeriesCollection dataset) {
+       chart =  create(dataset);
     }
 }

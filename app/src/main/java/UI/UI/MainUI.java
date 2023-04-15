@@ -7,10 +7,9 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Vector;
 import javax.swing.*;
-import LogicAndComparsion.Location;
-import LogicAndComparsion.Logic;
-import LogicAndComparsion.StatsComparison;
-import LogicAndComparsion.Time;
+import javax.swing.text.Utilities;
+
+import LogicAndComparsion.*;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -56,7 +55,7 @@ public class MainUI extends JFrame {
 
     private static MainUI instance;
     private static ArrayList<String> locations = new ArrayList<>();
-    private static ArrayList<String> visuals = new ArrayList<>();
+    private static ArrayList<Charts> visuals = new ArrayList<>();
     private static ArrayList<String> times = new ArrayList<>();
     Forcasting forcasting = new Forcasting();
     private  ArrayList<Node> result = new ArrayList<>();
@@ -66,16 +65,17 @@ public class MainUI extends JFrame {
     private static int counter = 0;
     JComboBox<String> fromList, toList,methodsList;
     JPanel west, east;
-    ChartPanel chartTimeSeriesPanel,scatterTimeSeriesPanel,barChart,lineChart;
+    ChartPanel barChart;
     JTextArea report,tableF;
     JScrollPane outputScrollPane;
     String startTime= "";
     String endTime = "";
-    String table = "";
+    String table = "report";
     Linechart line;
     Barchart bar;
     Scatterchart scatterChart;
-    TimeSerise timeSerise;
+    TimeSeriseChart timeSeriseChart;
+    Charts barC,lineC,scatterC,timeC;
 
     public static MainUI getInstance() {
         if (instance == null) {
@@ -92,7 +92,7 @@ public class MainUI extends JFrame {
     }
     private void init(){
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-
+        dataHandler = new DataHandler(startTime,endTime,locations,result);
         // Set top bar ---------------->
 
         // radio buttons for table switching
@@ -147,9 +147,7 @@ public class MainUI extends JFrame {
 
         JLabel test1 = new JLabel("" );
 
-
         addLocation.addActionListener(e -> {
-            dataHandler = DataHandler.getInstance();
 
             if(e.getSource() == addLocation){
                 if(locations.contains((String)countriesList.getSelectedItem())){
@@ -236,6 +234,7 @@ public class MainUI extends JFrame {
 
         loadData.addActionListener (e->{
 
+
             if(e.getSource()==loadData){
                 east.removeAll();
 
@@ -311,18 +310,22 @@ public class MainUI extends JFrame {
 
 
         // Available views
-        Vector<String> viewsNames = new Vector<String>();
-        viewsNames.add("Line Chart");
-        viewsNames.add("Time Series Chart");
-        viewsNames.add("Bar Chart");
-        viewsNames.add("Scatter Chart");
+        Vector<Charts> viewsNames = new Vector<>();
+        barC = new Barchart(dataHandler.dataset());
+        lineC = new Linechart(dataHandler.dataset());
+        scatterC = new Scatterchart(dataHandler.dataset());
+        timeC = new TimeSeriseChart(dataHandler.dataset());
+        viewsNames.add(barC);
+        viewsNames.add(lineC);
+        viewsNames.add(scatterC);
+        viewsNames.add(timeC);
 
-        JComboBox<String> viewsList = new JComboBox<String>(viewsNames);
+        JComboBox<Charts> viewsList = new JComboBox<>(viewsNames);
         JButton addView = new JButton("+");
         addView.addActionListener(e->{ // adding different views to the screen
             if(checkThreshold()){ // check the threshold ( <=3 )
-                if(!visuals.contains((String)viewsList.getSelectedItem())){
-                    visuals.add((String)viewsList.getSelectedItem());
+                if(!visuals.contains((Charts) viewsList.getSelectedItem())){
+                    visuals.add((Charts) viewsList.getSelectedItem());
                     updateView(west);
                     SwingUtilities.updateComponentTreeUI(west);
                 }
@@ -340,11 +343,11 @@ public class MainUI extends JFrame {
             if(visuals.size()<=0){
                 makeDialogBox("Chart is empty");
             }
-            else if(!visuals.contains((String)viewsList.getSelectedItem())){
+            else if(!visuals.contains(viewsList.getSelectedItem())){
                 makeDialogBox("Your choice does not exist");
             }
             else{
-                visuals.remove((String)viewsList.getSelectedItem());
+                visuals.remove(viewsList.getSelectedItem());
                 updateView(west);
                 SwingUtilities.updateComponentTreeUI(west);
             }
@@ -460,6 +463,7 @@ public class MainUI extends JFrame {
         report.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         report.setBackground(Color.white);
         String reportMessage = "";
+        System.out.println(type);
 
         //raw data table
         if(type.equals("report")){
@@ -509,32 +513,18 @@ public class MainUI extends JFrame {
 
     // based on the threshold and the user choice update the view
     public void updateView(JPanel west){
+        dataHandler = new DataHandler(startTime,endTime,locations,result);
+        for(Charts temp:visuals){
+            temp.update(dataHandler.dataset());
+        }
         west.removeAll();
+        System.out.println(visuals.contains(barC));
         createReport(west,table);
         west.add(outputScrollPane);
-        for(String panel:visuals){
-            if(panel.equals("Line Chart")){
-                line = new Linechart();
-                lineChart = line.createLine(west);
-                west.add(lineChart);
-            }
-            else if(panel.equals("Time Series Chart")){
-                timeSerise = new TimeSerise();
-                chartTimeSeriesPanel = timeSerise.createTimeSeries(west);
-                west.add(chartTimeSeriesPanel);
-            }
-            else if(panel.equals("Bar Chart")){
-                bar = new Barchart();
-                barChart = bar.createBar(west);
-                west.add(barChart);
-            }
-            else if(panel.equals("Scatter Chart")){
-                scatterChart  = new Scatterchart();
-                scatterTimeSeriesPanel = scatterChart.createScatter(west);
-                west.add(scatterTimeSeriesPanel);
-            }
+        for(Charts panel:visuals){
+           west.add(panel.getChart());
         }
-
+        SwingUtilities.updateComponentTreeUI(west);
     }
 
     //making a barchart for forecasting method

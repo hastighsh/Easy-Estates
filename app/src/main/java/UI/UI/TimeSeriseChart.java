@@ -7,25 +7,26 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYSplineRenderer;
+import org.jfree.data.xy.XYSeriesCollection;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class TimeSerise {
-    MainUI main;
-    public TimeSerise(){
-        main = MainUI.getInstance();
+public class TimeSeriseChart implements Charts{
+    ChartPanel chart;
+    public TimeSeriseChart(XYSeriesCollection dataset){
+        chart = create(dataset);
     }
 
-    protected ChartPanel createTimeSeries(JPanel west) {
+    public ChartPanel create(XYSeriesCollection dataset) {
 
-        JFreeChart chart = ChartFactory.createXYLineChart("NHPI of Cities Over Time", "Year", "NHPI",  main.dataHandler.dataset(),
+        JFreeChart chart = ChartFactory.createXYLineChart("NHPI of Cities Over Time", "Year", "NHPI",  dataset,
                 PlotOrientation.VERTICAL, true, true, false);
         XYPlot plot = chart.getXYPlot();
         XYSplineRenderer splinerenderer1 = new XYSplineRenderer();
         XYSplineRenderer splinerenderer2 = new XYSplineRenderer();
 
-        plot.setDataset(0, main.dataHandler.dataset());
+        plot.setDataset(0, dataset);
         plot.setRenderer(0, splinerenderer1);
 
 
@@ -41,5 +42,16 @@ public class TimeSerise {
         chartTimeSeriesPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         chartTimeSeriesPanel.setBackground(Color.white);
         return chartTimeSeriesPanel;
+    }
+    public String toString(){
+        return "Time Series Chart";
+    }
+    public ChartPanel getChart(){
+        return chart;
+    }
+
+    @Override
+    public void update(XYSeriesCollection dataset) {
+        chart = create(dataset);
     }
 }
