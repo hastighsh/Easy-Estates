@@ -1,6 +1,7 @@
 package UI.UI;
 
 import java.awt.*;
+import java.lang.reflect.Constructor;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,6 +63,7 @@ public class MainUI extends JFrame {
 
     DataHandler dataHandler;
     Logic log = new Logic();
+    Vector<String> years;
     private static int counter = 0;
     JComboBox<String> fromList, toList,methodsList;
     JPanel west, east;
@@ -221,7 +223,7 @@ public class MainUI extends JFrame {
         JLabel from = new JLabel("From");
         JLabel to = new JLabel("To");
 
-        Vector<String> years = new Vector<String>();
+        years = new Vector<String>();
         for (int i = 2022; i >= 1981; i--) {
             years.add("" + i);
         }
@@ -360,71 +362,9 @@ public class MainUI extends JFrame {
         // comparing drop-down menu, button, ...
 
         JButton statsBtn = new JButton("Compare by T-test");
-        statsBtn.addActionListener(e->{
-            if(result.size()==0){
-                String dia = "add a city first";
-                makeDialogBox(dia);
-            }
-            else {
-                JDialog window = new JDialog(this);
-                window.setLocationRelativeTo(null);
-                window.setPreferredSize(new Dimension(600, 100));
-                JComboBox<String> city1= new JComboBox<>();
-                JComboBox<String> fromTime = new JComboBox<>(years);
-                JComboBox<String> toTime = new JComboBox<>(years);
-                for (Node node : result) {
-                    city1.addItem(node.getLocation());
-                }
-                JLabel city1Label = new JLabel("City:");
-                JLabel fromL = new JLabel("form:");
-                JLabel toL = new JLabel("to: ");
-                JButton submit = new JButton("submit");
-                window.add(city1Label);
-                window.add(city1);
-                window.add(fromL);
-                window.add(fromTime);
-                window.add(toL);
-                window.add(toTime);
-                window.add(submit);
-                window.setLayout(new FlowLayout());
-                window.pack();
-                window.setVisible(true);
-                submit.addActionListener(c -> {
-                    try {
-                        Location location1 = new Location((String)city1.getSelectedItem());
-                        Time start1 = new Time((String) fromList.getSelectedItem());        // user gives this (comes as parameter from UI call, logic.AddTimeSeries(place, startTime, endTime);
-                        Time end1 = new Time((String) toList.getSelectedItem());
-                        Time start2 = new Time((String) fromTime.getSelectedItem());
-                        Time end2 = new Time((String) toTime.getSelectedItem());
-                        int startTemp = Integer.parseInt(start2.getName());
-                        int endTemp = Integer.parseInt(end2.getName());
-                        if(start1.equals(start2)&&end1.equals(end2)){
-                            makeDialogBox("please select two different time series");
-                        }
-                        else if(startTemp>=endTemp){
-                            makeDialogBox("select correct time series please");
-                        }
+        Comparsion c= new Comparsion();
+        statsBtn.addActionListener(c);
 
-                        else{
-                            window.dispose();
-                            ArrayList<Double> data1 = log.fetchData(location1, start1, end1);//  fetchData(place, startTime, endTime) returns data1, data2
-                            System.out.println(data1);
-                            ArrayList<Double> data2 = log.fetchData(location1, start2, end2);
-                            System.out.println(data2);
-                            LogicAndComparsion.TimeSeries tseries1 = new LogicAndComparsion.TimeSeries(data1, start1, end1);
-                            LogicAndComparsion.TimeSeries tseries2 = new LogicAndComparsion.TimeSeries(data2, start1, end1);
-                            StatsComparison sc = log.compareTimeSeries(tseries1, tseries2);
-                            System.out.println(sc.getPValue());
-                            System.out.println(sc.getConclusion());
-                            east.remove(outputScrollPane);
-                            createCompareFrame(sc.getPValue(),(String) city1.getSelectedItem(),sc.getConclusion(),east);
-                        }
-                    } catch (SQLException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                });
-            }
-        });
 
 
         // making the bottom pane
@@ -594,7 +534,7 @@ public class MainUI extends JFrame {
     }
 
     // making the compare table based on the inputted values
-    private void createCompareFrame(Double data,String city1,String conclusion,JPanel east){
+    protected void createCompareFrame(Double data,String city1,String conclusion,JPanel east){
         report = new JTextArea();
         report.setEditable(false);
         report.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
